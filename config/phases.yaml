@@ -65,6 +65,10 @@ bgp:
       p2_onset: { start: "2026-02-25T00:00:00Z", end: "2026-03-03T00:00:00Z" }
       p4_restoration: { start: "2026-05-24T00:00:00Z", end: "2026-07-01T00:00:00Z" }
       p0_baseline: { start: "2025-09-01T00:00:00Z", end: "2025-10-01T00:00:00Z" }
+      # D-015: P3 plateau sample slices (calendar rule: 14th->21st of each full P3 month)
+      p3_sample_mar: { start: "2026-03-14T00:00:00Z", end: "2026-03-21T00:00:00Z" }
+      p3_sample_apr: { start: "2026-04-14T00:00:00Z", end: "2026-04-21T00:00:00Z" }
+      p3_sample_may: { start: "2026-05-14T00:00:00Z", end: "2026-05-21T00:00:00Z" }
   # A peer counts as "full feed" if its RIB carries at least this many prefixes.
   full_feed_min_prefixes:
     ipv4: 400000

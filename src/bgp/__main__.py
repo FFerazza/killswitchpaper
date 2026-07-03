@@ -54,6 +54,10 @@ def main() -> None:
         "--keep-files", action="store_true",
         help="keep downloaded bview files instead of deleting after each snapshot",
     )
+    p_ris.add_argument(
+        "--range", action="append", dest="ranges",
+        help="backfill range name from phases.yaml; repeatable (default: all ranges)",
+    )
 
     args = parser.parse_args()
     cfg = Config.load(args.config_dir)
@@ -78,7 +82,7 @@ def main() -> None:
         ribs_ris_dir = DATA_DIR / "bgp" / "ribs_ris"
         run_ribs_ris(
             cfg, ribs_ris_dir, DATA_DIR / "raw" / "ris", prefixes,
-            keep_files=args.keep_files,
+            keep_files=args.keep_files, range_names=args.ranges,
         )
         consolidate(ribs_ris_dir, DATA_DIR / "bgp" / "visibility_timeseries_ris.parquet")
     else:

@@ -1,0 +1,44 @@
+# D-014 frozen control population. Write-once: superseding requires
+# a new DECISIONS.md entry. Append documented regional events to caveats.
+frozen_at: '2026-07-03T19:27:49Z'
+decision: D-014
+countries:
+- TR
+- AE
+- PK
+artifact_bin_share: 0.1
+asns:
+  TR:
+  - 9121
+  - 15897
+  - 20978
+  - 8386
+  - 15924
+  - 34984
+  - 47524
+  - 12978
+  - 8517
+  - 12735
+  AE:
+  - 5384
+  - 8966
+  - 15802
+  - 57187
+  - 199739
+  - 216071
+  - 41268
+  - 216154
+  - 8529
+  - 59605
+  PK:
+  - 9557
+  - 17557
+  - 38264
+  - 9541
+  - 24440
+  - 23966
+  - 23674
+  - 38710
+  - 59257
+  - 138423
+caveats: []

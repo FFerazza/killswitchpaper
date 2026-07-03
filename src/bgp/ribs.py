@@ -40,6 +40,29 @@ class CollectorIntegrityError(RuntimeError):
     """A configured collector is missing from the snapshot (D-002 rule b)."""
 
 
+def retry_transport(fn, attempts: int = 3, delay_s: float = 60.0) -> None:
+    """Run `fn` up to `attempts` times, retrying on StreamTransportError.
+
+    Dump transfers fail transiently (partial http downloads); a failed attempt
+    writes nothing (D-002 abort semantics), so a clean retry is safe. Persistent
+    corruption still raises after the last attempt.
+    """
+    import time
+
+    from src.bgp.stream import StreamTransportError
+
+    for attempt in range(1, attempts + 1):
+        try:
+            fn()
+            return
+        except StreamTransportError as e:
+            if attempt == attempts:
+                raise
+            log.warning("attempt %d/%d hit transport error (%s); retrying in %.0fs",
+                        attempt, attempts, e, delay_s)
+            time.sleep(delay_s)
+
+
 def snapshot_path(ribs_dir: Path, ts: int) -> Path:
     return ribs_dir / f"rib_{ts}.parquet"
 
@@ -173,7 +196,9 @@ def run_ribs(cfg: Config, ribs_dir: Path, prefixes: list[str], start: int, end: 
         if out.exists():
             log.info("skip existing %s", out.name)
             continue
-        process_snapshot(ts, cfg.rib_collectors, matcher, cfg.full_feed_min_prefixes, out)
+        retry_transport(lambda: process_snapshot(
+            ts, cfg.rib_collectors, matcher, cfg.full_feed_min_prefixes, out
+        ))
 
 
 def consolidate(ribs_dir: Path, out_path: Path) -> None:

@@ -12,3 +12,6 @@ ripestat_routing_history: "https://stat.ripe.net/data/routing-history/data.json"
 
 # D-012: RIS bview archive for direct fetch (BGPStream broker bypass).
 ris_archive_base: "https://data.ris.ripe.net"
+
+# D-014: APNIC delegation file (PK control ASNs; TR/AE come from the RIPE file).
+apnic_delegated_extended: "https://ftp.apnic.net/stats/apnic/delegated-apnic-extended-latest"

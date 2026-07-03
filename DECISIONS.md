@@ -166,7 +166,7 @@ Entry template:
 - Affects: H3 entirely.
 
 ## D-008 — Control population
-- Status: OPEN
+- Status: SUPERSEDED by D-014
 - Question: The set of non-IR ASes (candidate: 20–30 from TR, AE, PK) used to distinguish
   measurement-infrastructure artifacts from Iranian events. Selection rule must be stated
   (e.g. matched roughly on size and region) and fixed before event analysis.
@@ -284,3 +284,66 @@ Entry template:
   `probing_adequacy`), `src/analysis/joins.py` + `states.py`, `src/ioda/` (--baseline pull
   into data/ioda/baseline/).
 - Affects: H1 entirely (state shares are H1's core measurement); H3 secondarily.
+
+## D-014 — Resolution of D-008: control population
+- Status: DECIDED (2026-07-03)
+- Question: The fixed set of non-IR ASes used to distinguish measurement-infrastructure
+  artifacts from Iranian events (resolves D-008), now blocking two things: the artifact
+  check on the H1 announced-but-dark finding, and the D-013 dark-ratio calibration.
+- Proposed decision:
+  1. Control countries: TR, AE, PK (per the study brief: regional neighbors sharing
+     transit ecosystems and latency paths, with no *documented nationwide* shutdown
+     during the study period; documented regional/partial events — e.g. exam-window or
+     protest-related local shutdowns — are recorded in a caveats table with dates, and
+     affected bins are excluded from calibration but kept in artifact checks).
+  2. Mechanical selection rule (no hand-picking): per country, the 10 ASNs with the
+     largest delegated IPv4 address space (from the RIR delegation files — RIPE NCC for
+     TR/AE, APNIC for PK, added to Stage 1) that pass the identical D-013 probing-
+     adequacy rule over the same Sept 2025 reference month. 3 x 10 = 30 control ASNs,
+     frozen in `config/controls.yaml` before any control-based conclusion is drawn.
+  3. Artifact criterion: an Iranian anomaly (probing collapse, visibility drop, state
+     transition wave) is treated as a measurement artifact if the same-signed anomaly
+     appears in >= 10% of control ASNs in the same time bin. Artifact-flagged bins are
+     excluded and reported.
+  4. Dark-ratio calibration (per D-013 step 5): on control ASNs in quiet periods, choose
+     the largest ratio with false-dark rate < 1%.
+  5. Usage: control aggregates plotted alongside IR in every headline figure; every
+     event/anomaly finding names its control-check result (per the repo-level rule).
+  6. Robustness owed: repeat key artifact checks with (a) the next-10 ASNs per country,
+     (b) leave-one-country-out.
+- Operational implications (why this should be decided before the full-period run):
+  BGP-side control visibility requires control prefixes in the radix matcher at
+  stream time — deciding after the full-period run would force a full reprocess (~4
+  days). The immediate H1 artifact check is cheaper: it needs only IODA pulls for the
+  30 control ASNs (test week + baseline month, ~1-2 h), no RIB reprocessing.
+- Rationale: selection is mechanical (size rank + identical adequacy rule), fixed before
+  event analysis, and matched on region/size per D-008's own framing; the 10% artifact
+  threshold is provisional pipeline machinery subject to the same robustness reporting
+  as D-013 values.
+- Supersedes: D-008 (OPEN -> resolved by this entry).
+- Implemented in: `config/controls.yaml` (frozen ASN list), `src/population/` (APNIC
+  delegation source, control population files), `src/common/prefixmatch.py` usage in
+  Stage 2 (tag matched prefixes IR vs control), `src/ioda/` (control pulls),
+  `src/analysis/` (control comparison module).
+- Affects: validity of every anomaly claim (H1-H4); D-013 final dark ratio.
+
+## D-015 — Amendment to D-012: P3 sample slices added to the RIS backfill
+- Status: DECIDED (2026-07-03)
+- Question: Whether the RIS-inclusive secondary series should cover any of P3. D-012
+  scoped the backfill to transitions on the expectation that the plateau was static.
+  The milestone-1 H1 result (announced_but_dark as the dominant P2/P3 state, with the
+  Mar 1 cosmetic re-announcement wave) elevates "announced" during P3 to a core claim
+  with a vantage-sensitive failure mode: selective (e.g. regional) re-announcement
+  could make RouteViews-only measurement mis-state announcement levels for the whole
+  plateau.
+- Decision: add three one-week P3 sample slices to `bgp.ris_backfill.ranges`, chosen by
+  calendar rule (the 14th 00:00 UTC to the 21st 00:00 UTC of each full P3 month: March,
+  April, May 2026; ~63 snapshots). Purpose: verify RIS/RouteViews agreement on
+  announcement levels through the plateau. If they diverge beyond the D-002 audit
+  tolerances, widen coverage via a further entry.
+- Rationale: slice dates fixed by calendar rule before any RIS P3 data has been seen;
+  the trigger is a vulnerability identified in the finding's logic, not the finding's
+  direction.
+- Implemented in: `config/phases.yaml` (`ris_backfill.ranges.p3_sample_*`),
+  `src/bgp/backfill.py` (`--range` scoping for parallel workers).
+- Affects: H1 plateau claims; D-012 secondary-series scope.
