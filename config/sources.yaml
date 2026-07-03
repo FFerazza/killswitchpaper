@@ -1,0 +1,14 @@
+# External data source locations. If an API moves, fix it here only.
+
+ripe_delegated_extended: "https://ftp.ripe.net/pub/stats/ripencc/delegated-ripencc-extended-latest"
+
+caida_as2org_index: "https://publicdata.caida.org/datasets/as-organizations/"
+
+# IODA has moved between institutions before; verify against current docs
+# (https://ioda.inetintel.cc.gatech.edu) before a full run.
+ioda_api_base: "https://api.ioda.inetintel.cc.gatech.edu/v2"
+
+ripestat_routing_history: "https://stat.ripe.net/data/routing-history/data.json"
+
+# D-012: RIS bview archive for direct fetch (BGPStream broker bypass).
+ris_archive_base: "https://data.ris.ripe.net"

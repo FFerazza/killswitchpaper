@@ -216,3 +216,10 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# --- Pipeline data (see README: data/ gitignored except the hand-curated classification) ---
+data/*
+!data/population/
+data/population/*
+!data/population/ir_asn_classification.csv
+outputs/

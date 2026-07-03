@@ -1,0 +1,28 @@
+[project]
+name = "killswitch-pipeline"
+version = "0.1.0"
+description = "Data pipeline reconstructing Iran's 2025-26 internet shutdown from BGP and outage signals"
+requires-python = ">=3.11"
+dependencies = [
+    "requests>=2.31.0",
+    "PyYAML>=6.0",
+    "pandas>=2.1.0",
+    "pyarrow>=14.0.0",
+    "py-radix>=0.10.0",
+]
+
+[project.optional-dependencies]
+bgp = [
+    # Requires the libbgpstream C library; see Dockerfile / RUNNING.md.
+    "pybgpstream>=2.0",
+]
+dev = [
+    "pytest>=7.4.0",
+    "ruff>=0.1.0",
+]
+
+[tool.ruff]
+line-length = 100
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

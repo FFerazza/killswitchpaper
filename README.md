@@ -98,3 +98,34 @@ Makefile               # make population / bgp-ribs / bgp-events / ioda / ripest
 4. Stages 3–5 after Stage 2 is trusted.
 
 **Milestone 1 definition of done:** `make population && make test-week` produces the population files, one week of visibility data, and a `bgp_vs_ioda` join for that week, with the comparison script showing agreement with RIPEstat on the sample ASNs.
+
+---
+
+## Setup
+
+Full per-stage testing and run instructions live in **[RUNNING.md](RUNNING.md)**.
+
+```bash
+python3 -m venv .venv
+.venv/bin/pip install -e ".[dev]"
+make test          # unit tests, no network
+make population    # Stage 1
+```
+
+### pybgpstream (Stage 2 only)
+
+`pybgpstream` requires the [libbgpstream](https://bgpstream.caida.org/) C
+library. The supported path is the provided Docker image, which builds
+libbgpstream 2.2.0 from source:
+
+```bash
+make docker-image
+docker run --rm -v "$PWD/data:/app/data" killswitch-pipeline -m src.bgp ribs --window test_week
+```
+
+To install natively instead (Debian/Ubuntu): install
+`build-essential zlib1g-dev libbz2-dev libcurl4-openssl-dev librdkafka-dev libwandio1-dev`,
+build libbgpstream from the CAIDA release tarball (`./configure && make && sudo make install && sudo ldconfig`),
+then `pip install pybgpstream`. Note: libbgpstream 2.2.0 does not build
+against glibc ≥ 2.34 (`pthread_yield` was removed); use the Docker image on
+newer systems.

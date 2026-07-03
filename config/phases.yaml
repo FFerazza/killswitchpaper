@@ -1,0 +1,92 @@
+# Phase boundaries are HYPOTHESES to verify against the data, not constants.
+# All dates are UTC, ISO 8601. Revise here; nothing is hard-coded elsewhere.
+
+study_period:
+  start: "2025-05-01T00:00:00Z"   # baseline before the June 2025 war blackouts
+  end: "2026-07-01T00:00:00Z"
+
+phases:
+  P0:
+    start: "2025-05-01T00:00:00Z"
+    end: "2025-12-20T00:00:00Z"
+    character: "baseline + June 2025 war blackouts as short-shutdown reference"
+  P1:
+    start: "2025-12-20T00:00:00Z"
+    end: "2026-02-27T00:00:00Z"
+    character: "throttling / selective blocking"
+  P2:
+    start: "2026-02-28T00:00:00Z"
+    end: "2026-03-01T00:00:00Z"
+    character: "hard blackout onset, connectivity ~1%"
+  P3:
+    start: "2026-03-01T00:00:00Z"
+    end: "2026-05-25T00:00:00Z"
+    character: "plateau"
+  P4:
+    start: "2026-05-25T00:00:00Z"
+    end: "2026-07-01T00:00:00Z"
+    character: "partial, tiered restoration (whitelist regime)"
+
+# Boundary windows: full BGP update streams are pulled only here (Stage 2),
+# and event_speed metrics (H4) are computed per window.
+event_windows:
+  nov2019:
+    start: "2019-11-16T00:00:00Z"
+    end: "2019-11-23T00:00:00Z"
+  jun2025:
+    start: "2025-06-11T00:00:00Z"
+    end: "2025-06-26T00:00:00Z"
+  feb2026_onset:
+    start: "2026-02-27T00:00:00Z"
+    end: "2026-03-01T00:00:00Z"
+  may2026_restoration:
+    start: "2026-05-24T00:00:00Z"
+    end: "2026-05-27T00:00:00Z"
+
+# Milestone-1 test week around the P2 boundary; used by `make test-week`.
+test_week:
+  start: "2026-02-25T00:00:00Z"
+  end: "2026-03-03T00:00:00Z"
+
+bgp:
+  collectors: ["rrc00", "rrc12", "route-views2", "route-views.linx"]
+  # D-002: RIB/visibility runs use only collectors with continuous BGPStream-broker
+  # RIB coverage for the analyzed window (broker serves no rrc00 bviews Dec 2025-Mar 2026,
+  # no rrc12 before 2026-03-01). Temporary for milestone 1; see D-002 condition before
+  # any full-period run. `collectors` above still governs update-stream event pulls.
+  rib_collectors: ["route-views2", "route-views.linx"]
+  rib_interval_hours: 8
+  # D-012: RIS backfill — direct bview fetch from data.ris.ripe.net (broker bypass).
+  # Produces the SECONDARY RIS-inclusive series (data/bgp/ribs_ris/); never mixed with
+  # the primary series in one comparison. Ranges chosen by phase structure.
+  ris_backfill:
+    collectors: ["rrc00", "rrc12"]
+    ranges:
+      p2_onset: { start: "2026-02-25T00:00:00Z", end: "2026-03-03T00:00:00Z" }
+      p4_restoration: { start: "2026-05-24T00:00:00Z", end: "2026-07-01T00:00:00Z" }
+      p0_baseline: { start: "2025-09-01T00:00:00Z", end: "2025-10-01T00:00:00Z" }
+  # A peer counts as "full feed" if its RIB carries at least this many prefixes.
+  full_feed_min_prefixes:
+    ipv4: 400000
+    ipv6: 50000
+
+ioda:
+  # merit-nt = darknet (the UCSD telescope datasource `ucsd-nt` was retired)
+  signals: ["bgp", "ping-slash24", "merit-nt"]
+  request_interval_seconds: 1.0
+
+# ASNs cross-checked against RIPEstat (Stage 4). Initial candidates are the
+# gateway ASes (TIC 49666, DCI 12880) plus major access networks; revise the
+# sample after Stage 1 classification.
+ripestat_sample_asns: [49666, 12880, 58224, 197207, 44244]
+
+analysis:
+  # D-013: thresholds are PROVISIONAL pipeline values. Paper-grade values come from
+  # the D-013 procedure (literature precedent -> P0 bimodality valley -> control-
+  # population calibration). No H1 number computed with these is reportable.
+  visibility_announced_min: 0.5   # visibility fraction >= this => announced
+  probing_dark_ratio: 0.2         # probing below this fraction of baseline => dark
+  # D-013 (D-005): fixed P0 reference window for per-AS probing baselines
+  # (median over window), and the adequacy rule for probing-based metrics.
+  probing_baseline_window: { start: "2025-09-01T00:00:00Z", end: "2025-10-01T00:00:00Z" }
+  probing_adequacy: { min_nonzero_share: 0.5, min_median: 5 }
