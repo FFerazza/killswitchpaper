@@ -50,3 +50,34 @@ def test_other_errors_are_not_retried():
     with pytest.raises(ValueError):
         retry_transport(wrong_error, attempts=3, delay_s=0)
     assert len(calls) == 1
+
+
+def test_run_ribs_skips_persistent_failure_and_reports(monkeypatch, tmp_path):
+    """A snapshot that fails all retries is skipped, the rest of the range
+    completes, and the run exits nonzero listing the missed timestamp."""
+    from types import SimpleNamespace
+
+    import src.bgp.ribs as ribs
+
+    bad_ts = 28800  # middle snapshot of three
+
+    def fake_process(ts, collectors, matcher, full_feed_min, out_path, elems=None):
+        if ts == bad_ts:
+            raise StreamTransportError("persistent corruption")
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_path.touch()
+
+    monkeypatch.setattr(ribs, "process_snapshot", fake_process)
+    monkeypatch.setattr(ribs, "retry_transport", lambda fn, **kw: fn())
+
+    cfg = SimpleNamespace(
+        rib_interval_hours=8,
+        rib_collectors=["route-views2"],
+        full_feed_min_prefixes={"ipv4": 1, "ipv6": 1},
+    )
+    with pytest.raises(SystemExit, match="1 snapshot\\(s\\) failed.*1970-01-01T08:00"):
+        ribs.run_ribs(cfg, tmp_path, {"IR": ["10.0.0.0/8"]}, 0, 24 * 3600)
+
+    assert (tmp_path / "rib_0.parquet").exists()
+    assert not (tmp_path / "rib_28800.parquet").exists()
+    assert (tmp_path / "rib_57600.parquet").exists()

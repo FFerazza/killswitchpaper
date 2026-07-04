@@ -199,17 +199,33 @@ def run_ribs(
     cfg: Config, ribs_dir: Path, populations: dict[str, list[str]], start: int, end: int
 ) -> None:
     """Process every snapshot in [start, end), skipping ones already on disk."""
+    from src.bgp.stream import StreamTransportError
+
     matcher = PrefixMatcher(populations)
     times = list(snapshot_times(start, end, cfg.rib_interval_hours))
     log.info("%d snapshots between %s and %s", len(times), to_iso(start), to_iso(end))
+    failed: list[int] = []
     for ts in times:
         out = snapshot_path(ribs_dir, ts)
         if out.exists():
             log.info("skip existing %s", out.name)
             continue
-        retry_transport(lambda: process_snapshot(
-            ts, cfg.rib_collectors, matcher, cfg.full_feed_min_prefixes, out
-        ))
+        try:
+            retry_transport(lambda: process_snapshot(
+                ts, cfg.rib_collectors, matcher, cfg.full_feed_min_prefixes, out
+            ))
+        except StreamTransportError as e:
+            # Nothing was written (D-002 abort semantics); skip so one bad
+            # snapshot cannot stall the rest of the range, and report at end.
+            log.error("giving up on snapshot %s after retries (%s); continuing",
+                      to_iso(ts), e)
+            failed.append(ts)
+    if failed:
+        raise SystemExit(
+            f"{len(failed)} snapshot(s) failed after retries and are missing: "
+            + ", ".join(to_iso(ts) for ts in failed)
+            + " -- rerun to fill them (resumable)."
+        )
 
 
 def consolidate(ribs_dir: Path, out_path: Path) -> None:
