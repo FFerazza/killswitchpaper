@@ -26,6 +26,20 @@ def test_raises_after_exhausting_attempts():
         retry_transport(always_broken, attempts=2, delay_s=0)
 
 
+def test_backoff_doubles_between_attempts(monkeypatch):
+    import time
+
+    waits = []
+    monkeypatch.setattr(time, "sleep", waits.append)
+
+    def always_broken():
+        raise StreamTransportError("persistent corruption")
+
+    with pytest.raises(StreamTransportError):
+        retry_transport(always_broken, attempts=4, delay_s=60)
+    assert waits == [60, 120, 240]
+
+
 def test_other_errors_are_not_retried():
     calls = []
 

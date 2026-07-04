@@ -40,12 +40,13 @@ class CollectorIntegrityError(RuntimeError):
     """A configured collector is missing from the snapshot (D-002 rule b)."""
 
 
-def retry_transport(fn, attempts: int = 3, delay_s: float = 60.0) -> None:
+def retry_transport(fn, attempts: int = 5, delay_s: float = 60.0) -> None:
     """Run `fn` up to `attempts` times, retrying on StreamTransportError.
 
     Dump transfers fail transiently (partial http downloads); a failed attempt
-    writes nothing (D-002 abort semantics), so a clean retry is safe. Persistent
-    corruption still raises after the last attempt.
+    writes nothing (D-002 abort semantics), so a clean retry is safe. Delay
+    doubles each attempt (archive hiccups have outlasted a flat 3x60s window).
+    Persistent corruption still raises after the last attempt.
     """
     import time
 
@@ -58,9 +59,10 @@ def retry_transport(fn, attempts: int = 3, delay_s: float = 60.0) -> None:
         except StreamTransportError as e:
             if attempt == attempts:
                 raise
+            wait = delay_s * 2 ** (attempt - 1)
             log.warning("attempt %d/%d hit transport error (%s); retrying in %.0fs",
-                        attempt, attempts, e, delay_s)
-            time.sleep(delay_s)
+                        attempt, attempts, e, wait)
+            time.sleep(wait)
 
 
 def snapshot_path(ribs_dir: Path, ts: int) -> Path:

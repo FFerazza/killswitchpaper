@@ -23,7 +23,7 @@ from src.common.prefixmatch import PrefixMatcher
 from src.common.timeutil import snapshot_times, to_iso
 from src.bgp.ribs import _RIB_MARGIN_S, process_snapshot, retry_transport, snapshot_path
 from src.bgp.risfiles import fetch_bview, read_rib_file
-from src.bgp.stream import open_stream
+from src.bgp.stream import StreamTransportError, open_stream
 
 log = get_logger("bgp.backfill")
 
@@ -55,6 +55,7 @@ def run_ribs_ris(
             raise SystemExit(f"unknown backfill ranges {sorted(unknown)}; known: {sorted(known)}")
         ranges = [w for w in ranges if w.name in range_names]
 
+    failed: list[int] = []
     for window in ranges:
         times = list(snapshot_times(window.start, window.end, cfg.rib_interval_hours))
         log.info("range %s: %d snapshots (%s -> %s)",
@@ -79,7 +80,21 @@ def run_ribs_ris(
                     ts, all_collectors, matcher, cfg.full_feed_min_prefixes, out, elems=elems
                 )
 
-            retry_transport(_attempt)
-            if not keep_files:
-                for path, _ in ris_files:
-                    path.unlink(missing_ok=True)
+            try:
+                retry_transport(_attempt)
+            except StreamTransportError as e:
+                # Nothing was written (D-002 abort semantics); skip so one bad
+                # snapshot cannot stall the rest of the range, and report at end.
+                log.error("giving up on snapshot %s after retries (%s); continuing",
+                          to_iso(ts), e)
+                failed.append(ts)
+            finally:
+                if not keep_files:
+                    for path, _ in ris_files:
+                        path.unlink(missing_ok=True)
+    if failed:
+        raise SystemExit(
+            f"{len(failed)} snapshot(s) failed after retries and are missing: "
+            + ", ".join(to_iso(ts) for ts in failed)
+            + " -- rerun to fill them (resumable)."
+        )
