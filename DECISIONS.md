@@ -388,3 +388,40 @@ Entry template:
   IR), `src/bgp/__main__.py` (control file required for primary ribs/events;
   ribs-ris stays IR-scoped per D-012), `src/analysis/__main__.py` +
   `src/analysis/joins.py` (IR-only filtering for current tables).
+
+## D-017 — RIB snapshot acquisition: direct archive fetch primary, broker fallback
+- Status: DECIDED (2026-07-04, approved by FF in session)
+- Question: Which transport acquires RIB dump files for Stage 2 snapshots. The
+  BGPStream broker path has produced two independent failure classes in one week:
+  missing catalogue metadata (D-002 root cause) and deterministic mid-transfer
+  failures on specific healthy files ("partial file (18)" / corrupted-record,
+  reproduced 10+ attempts over 9+ hours on 5 distinct dumps across both local and
+  EC2 hosts, while plain HTTP fetches of the same files complete and pass
+  integrity checks). Meanwhile the D-012 direct-fetch path has served the entire
+  RIS backfill (~460 MB/snapshot, hundreds of snapshots) with only ordinary
+  download retries.
+- Decision:
+  1. RIB snapshots (primary series and D-012 secondary series): fetch dump files
+     directly from the collector archives (deterministic URL schemes,
+     archive.routeviews.org and data.ris.ripe.net), read via the singlefile
+     interface. The broker becomes the fallback, tried only when a direct fetch
+     fails (e.g. a collector skipped a dump at the grid time and the broker's
+     catalogue may know a nearby one).
+  2. Events/update streams: broker unchanged. Update windows span hundreds of
+     small files per collector whose enumeration and time-ordered merge is
+     exactly what the broker is for, and it has not failed there.
+  3. Both transports parse the same archive files with the same underlying
+     library; all D-002 validity guards (fatal record statuses, per-collector
+     full-feed presence, audit column) apply identically regardless of transport.
+- Robustness: the switch is validated by exact-equality comparison
+  (src/analysis/compare_ribs_runs.py) between a direct-primary test-week run and
+  the existing broker-produced test week: identical collector_fullfeed audits, IR
+  prefix sets, and per-prefix visibility numbers are required before any
+  full-period run. Transport is thereby shown to be measurement-invariant, not
+  assumed.
+- Affects: every Stage 2 RIB run from here on; unblocks the 4 RIS-backfill holes
+  and the EC2 test-week snapshot that the broker path cannot transfer.
+- Implemented in: `src/bgp/risfiles.py` (RouteViews URL scheme + fetch),
+  `src/bgp/ribs.py` (direct-primary snapshot path with broker fallback),
+  `src/bgp/backfill.py` (same flip for the secondary series),
+  `config/sources.yaml` (`routeviews_archive_base`).

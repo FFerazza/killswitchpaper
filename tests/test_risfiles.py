@@ -1,10 +1,30 @@
-"""D-012 RIS direct fetch: URL construction and collector tagging."""
+"""D-012/D-017 direct fetch: URL construction and collector tagging."""
 
 import pytest
 
-from src.bgp.risfiles import CollectorElem, bview_url
+from src.bgp.risfiles import CollectorElem, bview_url, routeviews_rib_url
 
 BASE = "https://data.ris.ripe.net"
+RV_BASE = "https://archive.routeviews.org"
+
+
+class TestRouteviewsRibUrl:
+    def test_route_views2_lives_at_archive_root(self):
+        # 2026-02-28 00:00:00 UTC
+        assert routeviews_rib_url(RV_BASE, "route-views2", 1772236800) == (
+            "https://archive.routeviews.org/bgpdata/2026.02/RIBS/rib.20260228.0000.bz2"
+        )
+
+    def test_named_collector_gets_path_segment(self):
+        # 2026-03-02 08:00:00 UTC -> month directory 2026.03
+        assert routeviews_rib_url(RV_BASE, "route-views.linx", 1772438400) == (
+            "https://archive.routeviews.org/route-views.linx/bgpdata/2026.03/RIBS/"
+            "rib.20260302.0800.bz2"
+        )
+
+    def test_off_grid_timestamp_rejected(self):
+        with pytest.raises(ValueError, match="RouteViews RIB grid"):
+            routeviews_rib_url(RV_BASE, "route-views2", 1772236800 + 3600)  # 01:00 UTC
 
 
 class TestBviewUrl:

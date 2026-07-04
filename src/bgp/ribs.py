@@ -20,6 +20,7 @@ full-feed audit column so composition changes are detectable across the series.
 
 import json
 from collections import defaultdict
+from itertools import chain
 from pathlib import Path
 
 import pandas as pd
@@ -195,13 +196,60 @@ def process_snapshot(
     tmp.replace(out_path)
 
 
-def run_ribs(
-    cfg: Config, ribs_dir: Path, populations: dict[str, list[str]], start: int, end: int
+def process_snapshot_direct(
+    ts: int,
+    rv_collectors: list[str],
+    matcher: PrefixMatcher,
+    full_feed_min: dict[str, int],
+    out_path: Path,
+    rv_base: str,
+    cache_dir: Path,
+    extra_files: "list[tuple[Path, str]] | tuple" = (),
+    all_collectors: "list[str] | None" = None,
+    keep_files: bool = False,
 ) -> None:
-    """Process every snapshot in [start, end), skipping ones already on disk."""
+    """D-017 primary transport: fetch RouteViews dumps directly, replay locally.
+
+    `extra_files` lets the D-012 backfill chain its already-fetched RIS bviews
+    into the same snapshot (their cleanup stays with the caller). Fetched
+    RouteViews files are deleted even on failure so a truncated download can
+    never be reused as a cached file by a later attempt.
+    """
+    from src.bgp.risfiles import fetch_routeviews_rib, read_rib_file
+
+    files = [(fetch_routeviews_rib(rv_base, c, ts, cache_dir), c) for c in rv_collectors]
+    try:
+        elems = chain.from_iterable(
+            read_rib_file(p, c) for p, c in [*files, *extra_files]
+        )
+        process_snapshot(
+            ts, all_collectors or rv_collectors, matcher, full_feed_min,
+            out_path, elems=elems,
+        )
+    finally:
+        if not keep_files:
+            for p, _ in files:
+                p.unlink(missing_ok=True)
+
+
+def run_ribs(
+    cfg: Config,
+    ribs_dir: Path,
+    populations: dict[str, list[str]],
+    start: int,
+    end: int,
+    rv_cache_dir: Path,
+) -> None:
+    """Process every snapshot in [start, end), skipping ones already on disk.
+
+    D-017 transport order per snapshot: direct archive fetch first; on any
+    direct-path failure (download exhausted its retries, or the local file is
+    unparseable) fall back to the broker stream with snapshot-level retries.
+    """
     from src.bgp.stream import StreamTransportError
 
     matcher = PrefixMatcher(populations)
+    rv_base = cfg.source("routeviews_archive_base")
     times = list(snapshot_times(start, end, cfg.rib_interval_hours))
     log.info("%d snapshots between %s and %s", len(times), to_iso(start), to_iso(end))
     failed: list[int] = []
@@ -211,13 +259,22 @@ def run_ribs(
             log.info("skip existing %s", out.name)
             continue
         try:
-            retry_transport(lambda: process_snapshot(
-                ts, cfg.rib_collectors, matcher, cfg.full_feed_min_prefixes, out
-            ))
+            try:
+                process_snapshot_direct(
+                    ts, cfg.rib_collectors, matcher, cfg.full_feed_min_prefixes,
+                    out, rv_base, rv_cache_dir,
+                )
+            except (StreamTransportError, RuntimeError) as e:
+                # RuntimeError is the downloader's post-retry failure contract.
+                log.warning("direct fetch failed for %s (%s); falling back to broker",
+                            to_iso(ts), e)
+                retry_transport(lambda: process_snapshot(
+                    ts, cfg.rib_collectors, matcher, cfg.full_feed_min_prefixes, out
+                ))
         except StreamTransportError as e:
             # Nothing was written (D-002 abort semantics); skip so one bad
             # snapshot cannot stall the rest of the range, and report at end.
-            log.error("giving up on snapshot %s after retries (%s); continuing",
+            log.error("giving up on snapshot %s after both transports (%s); continuing",
                       to_iso(ts), e)
             failed.append(ts)
     if failed:

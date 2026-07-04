@@ -1,12 +1,17 @@
-"""D-012: direct fetch of RIS RIB dumps (bviews), bypassing the BGPStream broker.
+"""D-012/D-017: direct fetch of RIB dumps, bypassing the BGPStream broker.
 
 The broker's RIS RIB metadata has gaps across the study period (see D-002),
-but the dump files themselves are complete on data.ris.ripe.net and follow a
-deterministic URL scheme:
+and its transfer path deterministically fails on some healthy RouteViews dumps
+(see D-017). The dump files themselves are complete on the archives and follow
+deterministic URL schemes:
 
     https://data.ris.ripe.net/{collector}/{YYYY.MM}/bview.{YYYYMMDD}.{HHMM}.gz
+    https://archive.routeviews.org[/{collector}]/bgpdata/{YYYY.MM}/RIBS/rib.{YYYYMMDD}.{HHMM}.bz2
 
-This module downloads a bview and replays it through pybgpstream's singlefile
+(route-views2 is the project's original collector and lives at the archive
+root, without a collector path segment.)
+
+This module downloads a dump and replays it through pybgpstream's singlefile
 interface, tagging elems with the originating collector so the D-002 guards
 and audit columns work unchanged.
 """
@@ -52,6 +57,26 @@ def bview_url(base: str, collector: str, ts: int) -> str:
 def fetch_bview(base: str, collector: str, ts: int, cache_dir: Path) -> Path:
     """Download (or reuse cached) bview file; returns the local path."""
     url = bview_url(base, collector, ts)
+    dest = cache_dir / collector / url.rsplit("/", 1)[-1]
+    return download(url, dest)
+
+
+def routeviews_rib_url(base: str, collector: str, ts: int) -> str:
+    """URL of the RouteViews RIB dump for snapshot `ts`.
+
+    RouteViews dumps RIBs every 2h on the hour, so any timestamp on our 8h
+    snapshot grid has a dump at exactly that time.
+    """
+    if ts % (2 * 3600):
+        raise ValueError(f"ts {ts} is not on the RouteViews RIB grid (even hours UTC)")
+    seg = "" if collector == "route-views2" else f"/{collector}"
+    dt = datetime.fromtimestamp(ts, tz=timezone.utc)
+    return f"{base}{seg}/bgpdata/{dt:%Y.%m}/RIBS/rib.{dt:%Y%m%d}.{dt:%H%M}.bz2"
+
+
+def fetch_routeviews_rib(base: str, collector: str, ts: int, cache_dir: Path) -> Path:
+    """Download (or reuse cached) RouteViews RIB dump; returns the local path."""
+    url = routeviews_rib_url(base, collector, ts)
     dest = cache_dir / collector / url.rsplit("/", 1)[-1]
     return download(url, dest)
 

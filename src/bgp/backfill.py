@@ -21,7 +21,13 @@ from src.common.config import Config
 from src.common.log import get_logger
 from src.common.prefixmatch import PrefixMatcher
 from src.common.timeutil import snapshot_times, to_iso
-from src.bgp.ribs import _RIB_MARGIN_S, process_snapshot, retry_transport, snapshot_path
+from src.bgp.ribs import (
+    _RIB_MARGIN_S,
+    process_snapshot,
+    process_snapshot_direct,
+    retry_transport,
+    snapshot_path,
+)
 from src.bgp.risfiles import fetch_bview, read_rib_file
 from src.bgp.stream import StreamTransportError, open_stream
 
@@ -35,15 +41,22 @@ def run_ribs_ris(
     prefixes: list[str],
     keep_files: bool = False,
     range_names: list[str] | None = None,
+    rv_cache_dir: Path | None = None,
 ) -> None:
     """Process every backfill-range snapshot not yet on disk (resumable).
 
     `range_names` restricts to a subset of configured ranges so parallel
     workers can each own disjoint ranges (snapshot files are per-timestamp,
     so concurrent workers never write the same path).
+
+    D-017 transport order: RouteViews dumps are fetched directly (like the RIS
+    bviews always were) and the broker is only tried when the direct path fails.
     """
     matcher = PrefixMatcher(prefixes)
     base = cfg.source("ris_archive_base")
+    rv_base = cfg.source("routeviews_archive_base")
+    if rv_cache_dir is None:
+        rv_cache_dir = cache_dir.parent / "routeviews"
     ris_collectors = cfg.ris_backfill_collectors
     all_collectors = cfg.rib_collectors + ris_collectors
 
@@ -65,11 +78,11 @@ def run_ribs_ris(
             if out.exists():
                 log.info("skip existing %s", out.name)
                 continue
-            # Fetch RIS files before opening the broker stream: fail early and
-            # cheaply if the archive is missing a file.
+            # Fetch RIS files first: fail early and cheaply if the archive is
+            # missing a file.
             ris_files = [(fetch_bview(base, c, ts, cache_dir), c) for c in ris_collectors]
 
-            def _attempt() -> None:
+            def _broker_fallback() -> None:
                 elems = chain(
                     open_stream(
                         ts - _RIB_MARGIN_S, ts + _RIB_MARGIN_S, cfg.rib_collectors, "ribs"
@@ -81,11 +94,22 @@ def run_ribs_ris(
                 )
 
             try:
-                retry_transport(_attempt)
+                try:
+                    process_snapshot_direct(
+                        ts, cfg.rib_collectors, matcher, cfg.full_feed_min_prefixes,
+                        out, rv_base, rv_cache_dir,
+                        extra_files=ris_files, all_collectors=all_collectors,
+                        keep_files=keep_files,
+                    )
+                except (StreamTransportError, RuntimeError) as e:
+                    # RuntimeError is the downloader's post-retry failure contract.
+                    log.warning("direct fetch failed for %s (%s); falling back to broker",
+                                to_iso(ts), e)
+                    retry_transport(_broker_fallback)
             except StreamTransportError as e:
                 # Nothing was written (D-002 abort semantics); skip so one bad
                 # snapshot cannot stall the rest of the range, and report at end.
-                log.error("giving up on snapshot %s after retries (%s); continuing",
+                log.error("giving up on snapshot %s after both transports (%s); continuing",
                           to_iso(ts), e)
                 failed.append(ts)
             finally:

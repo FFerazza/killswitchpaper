@@ -100,7 +100,8 @@ def main() -> None:
             start = to_unix(args.start) if args.start else cfg.study_period.start
             end = to_unix(args.end) if args.end else cfg.study_period.end
         ribs_dir = DATA_DIR / "bgp" / "ribs"
-        run_ribs(cfg, ribs_dir, populations, start, end)
+        run_ribs(cfg, ribs_dir, populations, start, end,
+                 rv_cache_dir=DATA_DIR / "raw" / "routeviews")
         consolidate(ribs_dir, DATA_DIR / "bgp" / "visibility_timeseries.parquet")
     elif args.command == "ribs-ris":
         from src.bgp.backfill import run_ribs_ris
