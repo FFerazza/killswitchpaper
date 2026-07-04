@@ -347,3 +347,44 @@ Entry template:
 - Implemented in: `config/phases.yaml` (`ris_backfill.ranges.p3_sample_*`),
   `src/bgp/backfill.py` (`--range` scoping for parallel workers).
 - Affects: H1 plateau claims; D-012 secondary-series scope.
+
+## D-016 — Control-prefix derivation and Stage 2 population tagging (completes D-014)
+- Status: DECIDED (2026-07-04, signed off by FF)
+- Question: D-014 requires control-country prefixes in the Stage 2 radix matcher at
+  stream time, tagged IR vs control, but does not pin (a) which prefixes constitute
+  the control prefix set or (b) how the tag is carried in Stage 2 outputs.
+- Proposed decision:
+  1. Control prefix set: all delegated IPv4 and IPv6 blocks attributed — via the
+     extended-delegation opaque-id — to the same organizations as the frozen control
+     ASNs in `config/controls.yaml`, taken from the same RIR delegation files used
+     for D-014 selection (RIPE NCC for TR/AE, APNIC for PK). Emitted once to
+     `data/population/control_prefixes.csv` (columns: prefix, family, cc, org ASNs)
+     alongside the frozen ASN list; regenerating requires the delegation snapshot
+     date to be recorded.
+  2. Tagging: Stage 2 outputs (RIB snapshots and event streams) gain a `cc` column
+     (IR, TR, AE, PK) set from which population tree the announced prefix matched.
+     Downstream IR-only series filter `cc == "IR"`; control series group by `cc`.
+  3. Overlap rule: IR and control delegations are disjoint address space, so a
+     prefix matching both trees indicates a data error — the run aborts (same
+     spirit as D-002: fail loudly, never guess).
+- Rationale: mirrors the Stage 1 IR derivation exactly (delegation-based, same
+  source files), and attributes address space to organizations by the identical
+  opaque-id rule already frozen in D-014 — no new discretion is introduced. The
+  alternative (per-ASN announced-prefix lists, e.g. from RIPEstat) was rejected
+  because it derives the population from BGP itself — circular for a study whose
+  measured variable is BGP visibility — and is snapshot-dependent and asymmetric
+  with the IR side.
+- Robustness owed: (a) report per-country matched-prefix counts next to IR's so
+  gross size mismatch is visible; (b) the D-014 next-10 robustness set reuses this
+  derivation unchanged; (c) control visibility findings report per-ASN (origin_asn)
+  breakdowns so a single org's delegation quirks cannot drive an artifact verdict.
+- Operational: implementing this changes the Stage 2 output schema; the test-week
+  run must be re-validated before any full-period run (per the standing rule).
+- Affects: D-014 artifact checks on BGP-side signals; every full-period Stage 2 run.
+- Implemented in: `src/population/controls.py` (`--prefixes` emission +
+  `control_prefixes.meta.json` snapshot record), `src/common/prefixmatch.py`
+  (tagged populations, `PopulationOverlapError` guard), `src/bgp/ribs.py` +
+  `src/bgp/events.py` (`cc` column; consolidation reads pre-D-016 snapshots as
+  IR), `src/bgp/__main__.py` (control file required for primary ribs/events;
+  ribs-ris stays IR-scoped per D-012), `src/analysis/__main__.py` +
+  `src/analysis/joins.py` (IR-only filtering for current tables).

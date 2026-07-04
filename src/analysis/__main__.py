@@ -21,11 +21,20 @@ log = get_logger("analysis")
 TABLES = ["visibility_by_type", "bgp_vs_ioda", "upstream_transitions", "event_speed"]
 
 
-def _load_visibility() -> pd.DataFrame:
+def _load_visibility(cc: str = "IR") -> pd.DataFrame:
+    """Load the visibility series for one population (D-016 cc tag).
+
+    The current tables are IR analyses; control-population BGP series (D-014
+    artifact checks) select their cc explicitly. Series consolidated before
+    D-016 carry no cc column and are IR-only by construction.
+    """
     path = DATA_DIR / "bgp" / "visibility_timeseries.parquet"
     if not path.exists():
         raise SystemExit(f"{path} not found - run `make bgp-ribs` (or test-week) first")
-    return pd.read_parquet(path)
+    df = pd.read_parquet(path)
+    if "cc" not in df.columns:
+        df["cc"] = "IR"
+    return df[df["cc"] == cc].reset_index(drop=True)
 
 
 def _load_classification() -> pd.DataFrame:

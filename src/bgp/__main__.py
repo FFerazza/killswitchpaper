@@ -30,6 +30,25 @@ def load_ir_prefixes() -> list[str]:
         return [row["prefix"] for row in csv.DictReader(f)]
 
 
+def load_populations() -> dict[str, list[str]]:
+    """IR + control prefix populations for the tagged matcher (D-016).
+
+    The control file is required: primary ribs/events runs without control
+    tagging would force a full-period reprocess (D-014 operational note).
+    """
+    path = DATA_DIR / "population" / "control_prefixes.csv"
+    if not path.exists():
+        raise SystemExit(
+            f"{path} not found - run `python -m src.population.controls --prefixes` "
+            "first (D-016: primary runs must tag control prefixes)"
+        )
+    populations: dict[str, list[str]] = {"IR": load_ir_prefixes()}
+    with open(path, newline="") as f:
+        for row in csv.DictReader(f):
+            populations.setdefault(row["cc"], []).append(row["prefix"])
+    return populations
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config-dir", type=Path, default=CONFIG_DIR)
@@ -61,8 +80,15 @@ def main() -> None:
 
     args = parser.parse_args()
     cfg = Config.load(args.config_dir)
-    prefixes = load_ir_prefixes()
-    log.info("loaded %d IR prefixes", len(prefixes))
+    if args.command == "ribs-ris":
+        # D-012 secondary series is IR-scoped by design (RIS/RouteViews
+        # agreement on IR announcement levels); controls live in the primary.
+        prefixes = load_ir_prefixes()
+        log.info("loaded %d IR prefixes", len(prefixes))
+    else:
+        populations = load_populations()
+        log.info("loaded populations: %s",
+                 {cc: len(p) for cc, p in populations.items()})
 
     if args.command == "ribs":
         if args.window and (args.start or args.end):
@@ -74,7 +100,7 @@ def main() -> None:
             start = to_unix(args.start) if args.start else cfg.study_period.start
             end = to_unix(args.end) if args.end else cfg.study_period.end
         ribs_dir = DATA_DIR / "bgp" / "ribs"
-        run_ribs(cfg, ribs_dir, prefixes, start, end)
+        run_ribs(cfg, ribs_dir, populations, start, end)
         consolidate(ribs_dir, DATA_DIR / "bgp" / "visibility_timeseries.parquet")
     elif args.command == "ribs-ris":
         from src.bgp.backfill import run_ribs_ris
@@ -91,7 +117,7 @@ def main() -> None:
             windows = [cfg.window_by_name(name) for name in args.windows]
         else:
             windows = cfg.event_windows
-        run_events(cfg, DATA_DIR / "bgp" / "events", prefixes, windows)
+        run_events(cfg, DATA_DIR / "bgp" / "events", populations, windows)
 
 
 if __name__ == "__main__":

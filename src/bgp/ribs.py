@@ -114,11 +114,12 @@ def process_snapshot(
     """
     # (collector, peer_asn, peer_addr) -> per-family route counts, for full-feed detection
     peer_route_counts: dict[tuple, dict[str, int]] = defaultdict(lambda: {"ipv4": 0, "ipv6": 0})
-    # matched IR prefix -> set of peers carrying it
+    # matched population prefix -> set of peers carrying it
     prefix_peers: dict[str, set[tuple]] = defaultdict(set)
     prefix_origins: dict[str, set[int]] = defaultdict(set)
     prefix_upstreams: dict[str, set[int]] = defaultdict(set)
     prefix_family: dict[str, str] = {}
+    prefix_cc: dict[str, str] = {}  # D-016 population tag (IR or control country)
 
     if elems is None:
         elems = open_stream(ts - _RIB_MARGIN_S, ts + _RIB_MARGIN_S, collectors, "ribs")
@@ -132,11 +133,12 @@ def process_snapshot(
         peer = (elem.collector, elem.peer_asn, elem.peer_address)
         peer_route_counts[peer][family] += 1
 
-        matched = matcher.match(prefix)
+        matched = matcher.match_cc(prefix)
         if matched is None:
             continue
         prefix_peers[prefix].add(peer)
         prefix_family[prefix] = family
+        prefix_cc[prefix] = matched[1]
         path = (elem.fields.get("as-path") or "").split()
         if path:
             try:
@@ -155,10 +157,14 @@ def process_snapshot(
         "ipv6": {p for p, c in peer_route_counts.items() if c["ipv6"] >= full_feed_min["ipv6"]},
     }
     collector_counts = per_collector_fullfeed(full_feed)
+    cc_counts: dict[str, int] = defaultdict(int)
+    for cc in prefix_cc.values():
+        cc_counts[cc] += 1
     log.info(
-        "%s: %d elems, %d peers (%d/%d full-feed v4/v6), %d IR prefixes seen, by collector %s",
+        "%s: %d elems, %d peers (%d/%d full-feed v4/v6), %d prefixes seen %s, by collector %s",
         to_iso(ts), n_elems, len(peer_route_counts),
         len(full_feed["ipv4"]), len(full_feed["ipv6"]), len(prefix_peers),
+        json.dumps(cc_counts, sort_keys=True),
         json.dumps(collector_counts, sort_keys=True),
     )
     check_collector_integrity(collector_counts, collectors)
@@ -173,6 +179,7 @@ def process_snapshot(
         rows.append({
             "ts": ts,
             "prefix": prefix,
+            "cc": prefix_cc[prefix],
             "family": 4 if family == "ipv4" else 6,
             "origin_asn": origins[0] if origins else -1,
             "peers_seen": seen,
@@ -188,9 +195,11 @@ def process_snapshot(
     tmp.replace(out_path)
 
 
-def run_ribs(cfg: Config, ribs_dir: Path, prefixes: list[str], start: int, end: int) -> None:
+def run_ribs(
+    cfg: Config, ribs_dir: Path, populations: dict[str, list[str]], start: int, end: int
+) -> None:
     """Process every snapshot in [start, end), skipping ones already on disk."""
-    matcher = PrefixMatcher(prefixes)
+    matcher = PrefixMatcher(populations)
     times = list(snapshot_times(start, end, cfg.rib_interval_hours))
     log.info("%d snapshots between %s and %s", len(times), to_iso(start), to_iso(end))
     for ts in times:
@@ -210,6 +219,12 @@ def consolidate(ribs_dir: Path, out_path: Path) -> None:
         log.warning("no snapshot files in %s; nothing to consolidate", ribs_dir)
         return
     df = pd.concat((pd.read_parquet(f) for f in files), ignore_index=True)
+    # Snapshots written before D-016 matched only the IR population, so a
+    # missing/NaN cc tag is IR by construction.
+    if "cc" not in df.columns:
+        df["cc"] = "IR"
+    else:
+        df["cc"] = df["cc"].fillna("IR")
     df = df.sort_values(["ts", "prefix"]).reset_index(drop=True)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     tmp = out_path.with_suffix(".parquet.tmp")

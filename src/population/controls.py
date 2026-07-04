@@ -11,10 +11,18 @@ Selection is mechanical, per the decision entry:
 The frozen file is written once and never regenerated (like the IR
 classification CSV): rerunning against an existing controls.yaml aborts.
 
+D-016 adds the control prefix set: the delegated IPv4/IPv6 blocks of the same
+organizations (opaque-id) as the frozen ASNs, from the same delegation files,
+emitted to data/population/control_prefixes.csv for the Stage 2 matcher.
+
 Usage:
-    python -m src.population.controls
+    python -m src.population.controls               # freeze the ASN list (D-014)
+    python -m src.population.controls --prefixes    # emit control_prefixes.csv (D-016)
 """
 
+import argparse
+import csv
+import json
 import time
 from collections import defaultdict
 from collections.abc import Iterable
@@ -26,6 +34,7 @@ from src.common.cache import download
 from src.common.config import CONFIG_DIR, DATA_DIR, Config
 from src.common.log import get_logger
 from src.common.timeutil import to_iso
+from src.population.delegation import ipv4_range_to_cidrs
 
 log = get_logger("population.controls")
 
@@ -140,9 +149,110 @@ def freeze_controls(cfg: Config, out_path: Path) -> None:
              {cc: len(a) for cc, a in frozen.items()}, out_path)
 
 
+def control_org_prefixes(
+    lines: Iterable[str], cc: str, frozen_asns: set[int]
+) -> list[tuple[str, int, str]]:
+    """D-016: (prefix, family, org_asns) for every block delegated to an
+    organization (opaque-id) that holds any of the frozen control ASNs.
+
+    Attribution mirrors the D-014 selection rule exactly: the opaque-id links
+    an org's address blocks to its ASNs within one delegation file.
+    """
+    org_blocks: dict[str, list[tuple[str, int]]] = defaultdict(list)
+    org_asns: dict[str, list[int]] = defaultdict(list)
+    for line in lines:
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        fields = line.split("|")
+        if len(fields) < 8 or fields[1] != cc or fields[6] not in _VALID_STATUSES:
+            continue
+        rtype, start, value, opaque = fields[2], fields[3], fields[4], fields[7]
+        if rtype == "ipv4":
+            for cidr in ipv4_range_to_cidrs(start, int(value)):
+                org_blocks[opaque].append((cidr, 4))
+        elif rtype == "ipv6":
+            org_blocks[opaque].append((f"{start}/{int(value)}", 6))
+        elif rtype == "asn":
+            first = int(start)
+            org_asns[opaque].extend(range(first, first + int(value)))
+
+    rows = []
+    for opaque, asns in org_asns.items():
+        held = sorted(frozen_asns & set(asns))
+        if not held:
+            continue
+        asns_str = ",".join(str(a) for a in held)
+        rows.extend((prefix, family, asns_str) for prefix, family in org_blocks[opaque])
+    return rows
+
+
+def emit_control_prefixes(cfg: Config, out_csv: Path, force: bool = False) -> None:
+    """Derive and write the D-016 control prefix set + delegation-snapshot metadata."""
+    if out_csv.exists() and not force:
+        raise SystemExit(
+            f"{out_csv} already exists (D-016 set is derived once from a recorded "
+            "delegation snapshot). Rerun with --force to regenerate; the new "
+            "snapshot date is recorded in the .meta.json."
+        )
+    controls_path = CONFIG_DIR / "controls.yaml"
+    if not controls_path.exists():
+        raise SystemExit(f"{controls_path} not found - run the D-014 freeze first")
+    with open(controls_path) as f:
+        frozen = yaml.safe_load(f)["asns"]
+
+    files = {
+        "ripe": download(cfg.source("ripe_delegated_extended"),
+                         DATA_DIR / "raw" / "delegated-ripencc-extended-latest"),
+        "apnic": download(cfg.source("apnic_delegated_extended"),
+                          DATA_DIR / "raw" / "delegated-apnic-extended-latest"),
+    }
+    headers = {}
+    for registry, path in files.items():
+        with open(path) as f:
+            # The version header is the first non-comment line (APNIC prepends
+            # a comment banner).
+            headers[registry] = next(
+                line.strip() for line in f if line.strip() and not line.startswith("#")
+            )
+
+    all_rows: list[tuple[str, int, str, str]] = []
+    for cc, registry in COUNTRIES.items():
+        with open(files[registry]) as f:
+            rows = control_org_prefixes(f, cc, set(frozen[cc]))
+        log.info("%s: %d control prefixes for %d frozen ASNs",
+                 cc, len(rows), len(frozen[cc]))
+        all_rows.extend((prefix, family, cc, asns) for prefix, family, asns in rows)
+
+    out_csv.parent.mkdir(parents=True, exist_ok=True)
+    with open(out_csv, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["prefix", "family", "cc", "org_asns"])
+        writer.writerows(all_rows)
+    meta = {
+        "decision": "D-016",
+        "generated_at": to_iso(int(time.time())),
+        "delegation_file_headers": headers,
+    }
+    with open(out_csv.with_suffix(".meta.json"), "w") as f:
+        json.dump(meta, f, indent=2)
+    log.info("%d control prefixes -> %s (snapshot metadata in %s)",
+             len(all_rows), out_csv, out_csv.with_suffix(".meta.json").name)
+
+
 def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--prefixes", action="store_true",
+                        help="emit data/population/control_prefixes.csv (D-016)")
+    parser.add_argument("--force", action="store_true",
+                        help="regenerate control_prefixes.csv from a fresh delegation snapshot")
+    args = parser.parse_args()
     cfg = Config.load()
-    freeze_controls(cfg, CONFIG_DIR / "controls.yaml")
+    if args.prefixes:
+        emit_control_prefixes(cfg, DATA_DIR / "population" / "control_prefixes.csv",
+                              force=args.force)
+    else:
+        freeze_controls(cfg, CONFIG_DIR / "controls.yaml")
 
 
 if __name__ == "__main__":

@@ -199,6 +199,10 @@ def event_speed(events_dir: Path, out_path: Path) -> pd.DataFrame:
     for path in sorted(events_dir.glob("*.parquet")):
         window = path.stem
         events = pd.read_parquet(path)
+        # Onset duration is an IR metric; windows pulled before D-016 carry
+        # no cc column and are IR-only by construction.
+        if "cc" in events.columns:
+            events = events[events["cc"] == "IR"]
         withdrawals = events[events["event"] == "withdraw"]
         if withdrawals.empty:
             log.warning("window %s: no withdrawals", window)

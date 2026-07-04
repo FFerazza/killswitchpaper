@@ -1,7 +1,8 @@
 """Stage 2b: full update streams in boundary windows -> withdrawal/announcement events.
 
 Output per window: data/bgp/events/{window}.parquet with columns
-    ts, prefix, asn, event(withdraw|announce), peer_asn, as_path
+    ts, prefix, cc, asn, event(withdraw|announce), peer_asn, as_path
+`cc` is the D-016 population tag (IR or a control country).
 Withdrawals carry no AS path, so `asn` for a withdraw is the last origin this
 peer announced for the prefix within the window (-1 if never seen).
 """
@@ -40,8 +41,12 @@ def process_window(
         if elem.type not in ("A", "W"):
             continue
         prefix = elem.fields.get("prefix")
-        if not prefix or matcher.match(prefix) is None:
+        if not prefix:
             continue
+        matched = matcher.match_cc(prefix)
+        if matched is None:
+            continue
+        cc = matched[1]
         key = (elem.peer_address, elem.peer_asn, prefix)
         if elem.type == "A":
             path = (elem.fields.get("as-path") or "").split()
@@ -53,6 +58,7 @@ def process_window(
             rows.append({
                 "ts": int(elem.time),
                 "prefix": prefix,
+                "cc": cc,
                 "asn": origin,
                 "event": "announce",
                 "peer_asn": int(elem.peer_asn),
@@ -62,6 +68,7 @@ def process_window(
             rows.append({
                 "ts": int(elem.time),
                 "prefix": prefix,
+                "cc": cc,
                 "asn": last_origin.get(key, -1),
                 "event": "withdraw",
                 "peer_asn": int(elem.peer_asn),
@@ -69,7 +76,7 @@ def process_window(
             })
 
     df = pd.DataFrame(
-        rows, columns=["ts", "prefix", "asn", "event", "peer_asn", "as_path"]
+        rows, columns=["ts", "prefix", "cc", "asn", "event", "peer_asn", "as_path"]
     ).sort_values("ts").reset_index(drop=True)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     tmp = out_path.with_suffix(".parquet.tmp")
@@ -78,7 +85,9 @@ def process_window(
     log.info("window %s: %d events -> %s", window.name, len(df), out_path)
 
 
-def run_events(cfg: Config, events_dir: Path, prefixes: list[str], windows: list[Window]) -> None:
-    matcher = PrefixMatcher(prefixes)
+def run_events(
+    cfg: Config, events_dir: Path, populations: dict[str, list[str]], windows: list[Window]
+) -> None:
+    matcher = PrefixMatcher(populations)
     for window in windows:
         process_window(window, cfg.collectors, matcher, window_path(events_dir, window))
