@@ -466,3 +466,40 @@ Entry template:
   with `state_telecom` and `government` merged (the most plausible boundary
   dispute).
 - Affects: H3 entirely; D-007 (superseded by this entry if decided).
+
+## D-019 — Amendment to D-018: sector scope extension and two added types
+- Status: DECIDED (2026-07-05, FF approved in session)
+- Question: D-018's size-ranked scope (top-100 by delegated space + cohort
+  members) excludes whole sectors that H3's whitelist hypothesis is about,
+  because their networks are small (banks run /24s, not /16s).
+- Decision:
+  1. Scope extension by MECHANICAL NAME-MATCH against the registry org-name
+     field (case-insensitive), recorded here; patterns only nominate candidates
+     for coding — the coded type remains a per-row judgment, so over-broad
+     patterns are harmless (e.g. an ISP matching "rasaneh" stays isp):
+     - financial: bank|financ|payment|informatic|shaparak|bourse|exchange|insurance|bime
+     - energy:    oil|gas|petro|energy|electric|power|tavanir|niroo|barq
+     - media:     news|press|media|broadcast|rasaneh|khabar
+  2. Taxonomy gains `energy` and `media` (10 types total). IRIB recodes from
+     government to media.
+  3. Candidates considered and REJECTED: `health` (Iranian medical
+     universities administer the provincial health system — the
+     education/health boundary is unresolvable by name, so such orgs stay
+     education/government with sector noted), `transport`/`industry`
+     (informative about the economy, not about shutdown policy; stay `other`
+     with sector noted).
+  4. Small-cell reporting rule (FF approved): any type with FEWER THAN 20
+     classified members carries count-based claims only — no percentages, no
+     shares — and every type-level H3 result reports its N. Sector cells are
+     additionally expected to fail ping-adequacy (small networks), so their
+     evidence is routing-side (announced/withdrawn) by construction; state
+     this in methods.
+- Rationale: sector inclusion is the analytically-motivated part of the H3
+  scope and must not depend on network size; name-matching keeps the
+  extension mechanical and reproducible; the two added types are the two
+  whose H3 questions are sharp (critical-infrastructure whitelisting; state
+  media continuity) and whose names are self-identifying.
+- Robustness: cohort analyses (always-reachable, first-restored) re-run with
+  and without extension rows; blind-validation sample redrawn over the
+  extended proposal before FF codes it.
+- Affects: D-018 scope and taxonomy; H3 sector-level claims.
