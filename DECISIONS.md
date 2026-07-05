@@ -155,7 +155,7 @@ Entry template:
 - Affects: H3 (centerpiece figure).
 
 ## D-007 — AS classification scheme and validation
-- Status: OPEN
+- Status: SUPERSEDED by D-018
 - Question: The type taxonomy (state_telecom, mobile, isp, government, financial, hosting,
   education, other), coding rules for ambiguous cases (e.g. state-owned ISPs serving
   consumers), and the inter-coder validation protocol (sample size, agreement statistic).
@@ -425,3 +425,44 @@ Entry template:
   `src/bgp/ribs.py` (direct-primary snapshot path with broker fallback),
   `src/bgp/backfill.py` (same flip for the secondary series),
   `config/sources.yaml` (`routeviews_archive_base`).
+
+## D-018 — Resolution of D-007: AS classification taxonomy, coding rules, validation
+- Status: DECIDED (2026-07-05, signed off by FF)
+- Question: D-007 left open the type taxonomy, ambiguity rules, and validation
+  protocol for `data/population/ir_asn_classification.csv` (H3 depends on it).
+- Proposed decision:
+  1. Taxonomy (8 types, as drafted in D-007): `state_telecom` (incumbent /
+     backbone / international-gateway operators), `mobile` (mobile network
+     operators), `isp` (fixed consumer/business access providers), `government`
+     (non-commercial state bodies), `financial` (banks, payment processors,
+     exchanges), `hosting` (datacenters, cloud, CDN), `education` (universities,
+     research networks), `other`.
+  2. Coding rules for ambiguity: (a) FUNCTION OVER OWNERSHIP — an AS is coded by
+     the service it observably provides, not its shareholders; ownership goes in
+     `notes` (a state-owned consumer ISP is `isp`). `state_telecom` is reserved
+     for core-infrastructure operators regardless of corporate form. (b) An AS
+     belonging to a conglomerate is coded by that AS's own role, not the group's
+     breadth. (c) Mobile operators are `mobile` even when state-linked (H3 asks
+     about service-class treatment). (d) Every coded row records `confidence`
+     (high/medium/low) and `sources` (URLs consulted).
+  3. Scope: code the top ~100 ASNs by delegated IPv4 space plus every ASN that
+     appears in an H3-relevant cohort (always-reachable set, first-restored set);
+     the long tail stays uncoded and is excluded from type-based analyses, with
+     the classified share of IR address space reported alongside.
+  4. Workflow honoring the hand-curation rule: Claude researches and writes
+     PROPOSALS to `outputs/asn_classification_proposal.csv` (asn, org_name,
+     proposed_type, confidence, sources, notes); FF reviews and merges approved
+     rows into the protected CSV. The protected file is never written by code.
+  5. Validation: FF independently codes a random sample of 40 proposal rows
+     (stratified by address space) blind to the proposed types; report percent
+     agreement and Cohen's kappa in the paper. If kappa < 0.7, revise coding
+     rules and re-code before H3 runs.
+- Rationale: function-over-ownership prevents the ownership question (interesting
+  but separate) from contaminating the service-class question H3 actually asks;
+  confidence + kappa make the subjectivity measurable instead of hidden;
+  proposal-file workflow keeps the protected CSV hand-curated in fact, not just
+  in name.
+- Robustness pre-committed: H3 rerun excluding `confidence=low` rows; H3 rerun
+  with `state_telecom` and `government` merged (the most plausible boundary
+  dispute).
+- Affects: H3 entirely; D-007 (superseded by this entry if decided).
