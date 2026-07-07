@@ -6,24 +6,30 @@ study_period:
   end: "2026-07-01T00:00:00Z"
 
 phases:
+  # D-025: boundaries below are data-derived (blind full-period scan of the
+  # country-level IODA probing signal against D-013's already-decided dark
+  # ratio), not press-reported priors. See DECISIONS.md D-025 for method and
+  # the disconfirming note on P0/P1 (no transition detected at the press-
+  # reported Dec 20 2025 date - the scan found a distinct event starting
+  # Jan 8 2026 instead).
   P0:
     start: "2025-05-01T00:00:00Z"
-    end: "2025-12-20T00:00:00Z"
-    character: "baseline + June 2025 war blackouts as short-shutdown reference"
+    end: "2026-01-08T16:50:00Z"
+    character: "baseline + June 2025 war blackouts as short-shutdown reference. No measurable transition found at the press-reported late-Dec-2025 throttling-onset date."
   P1:
-    start: "2025-12-20T00:00:00Z"
-    end: "2026-02-27T00:00:00Z"
-    character: "throttling / selective blocking"
+    start: "2026-01-08T16:50:00Z"
+    end: "2026-02-28T07:50:00Z"
+    character: "internally heterogeneous (D-025): an 18-day near-total dark event (Jan 8-27, control-validated, 123 ASNs incl. TCI/TIC/MCI/Irancell/Rightel) followed by a ~32-day return to baseline before the hard onset. Report the Jan event separately, not as a P1-wide average."
   P2:
-    start: "2026-02-28T00:00:00Z"
+    start: "2026-02-28T07:50:00Z"
     end: "2026-03-01T00:00:00Z"
-    character: "hard blackout onset, connectivity ~1%"
+    character: "hard blackout onset, connectivity ~1%. Country probing signal crosses dark at 07:50 UTC, ~1h12m before the 09:02 UTC BGP withdrawal wave."
   P3:
     start: "2026-03-01T00:00:00Z"
-    end: "2026-05-25T00:00:00Z"
+    end: "2026-05-26T12:10:00Z"
     character: "plateau"
   P4:
-    start: "2026-05-25T00:00:00Z"
+    start: "2026-05-26T12:10:00Z"
     end: "2026-07-01T00:00:00Z"
     character: "partial, tiered restoration (whitelist regime)"
 
@@ -42,6 +48,13 @@ event_windows:
   may2026_restoration:
     start: "2026-05-24T00:00:00Z"
     end: "2026-05-27T00:00:00Z"
+  # D-025: the newly-found Jan 2026 dark event (P1). Not yet pulled - queued
+  # behind jun2025 intentionally (no concurrent heavy collection jobs on the
+  # same EC2 host, per the 2026-07-06 OOM incident). A day of margin on each
+  # side of the measured 01-08T16:50Z -> 01-27T01:00Z window.
+  jan2026_event:
+    start: "2026-01-07T00:00:00Z"
+    end: "2026-01-28T00:00:00Z"
 
 # Milestone-1 test week around the P2 boundary; used by `make test-week`.
 test_week:
@@ -78,6 +91,9 @@ ioda:
   # merit-nt = darknet (the UCSD telescope datasource `ucsd-nt` was retired)
   signals: ["bgp", "ping-slash24", "merit-nt"]
   request_interval_seconds: 1.0
+  # API rejects single queries >~100 days; 90-day chunks verified to return
+  # native step (no downsampling), 2026-07-06
+  max_query_days: 90
 
 # ASNs cross-checked against RIPEstat (Stage 4). Initial candidates are the
 # gateway ASes (TIC 49666, DCI 12880) plus major access networks; revise the
@@ -94,3 +110,24 @@ analysis:
   # (median over window), and the adequacy rule for probing-based metrics.
   probing_baseline_window: { start: "2025-09-01T00:00:00Z", end: "2025-10-01T00:00:00Z" }
   probing_adequacy: { min_nonzero_share: 0.5, min_median: 5 }
+  # D-020: a (snapshot, family) cell with fewer full-feed peers than this is
+  # DEGRADED and excluded from visibility-based analyses for that family.
+  min_fullfeed_peers: 15
+  # D-023: restoration timestamp = first post-P4 crossing of
+  # restoration_primary_threshold (50%) of a delegated block's own P0
+  # baseline mean (address-space-weighted, D-022); the other two values are
+  # pre-committed 25%/80% robustness companions, computed alongside, never
+  # substituted for the primary.
+  restoration_thresholds: [0.25, 0.5, 0.8]
+  restoration_primary_threshold: 0.5
+  # D-023: steady-state completeness = mean visibility over the final N days
+  # of the study period (a separate question from restoration timing).
+  steady_state_days: 30
+  # D-009: a withdrawal is a flap (not a real onset event for H4) if the same
+  # peer session (prefix, origin asn, peer_asn) reannounces within this many
+  # seconds. Derived from the actual withdraw->reannounce gap distribution
+  # across all completed event windows (12.77M gaps) - see DECISIONS.md D-009
+  # for the full histogram/rationale. 30s/300s are pre-committed robustness
+  # companions, not substitutes for the primary.
+  flap_threshold_s: 60
+  flap_threshold_robustness_s: [30, 300]

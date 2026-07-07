@@ -117,6 +117,7 @@ def freeze_controls(cfg: Config, out_path: Path) -> None:
             fetch_to_parquet(
                 baseline_dir / f"{asn}.parquet", base_url, "asn", str(asn),
                 w.start, w.end, cfg.ioda_signals, cfg.ioda_request_interval,
+                cfg.ioda_max_query_seconds,
             )
             _, adequate, stats = _probing_baseline(
                 baseline_dir, asn,

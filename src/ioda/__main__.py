@@ -3,13 +3,17 @@
 Usage:
     python -m src.ioda [--start ISO --end ISO | --window NAME] [--country-only]
 
-Pulls country/IR for the window plus every ASN in the Stage 1 population.
-Resumable: per-entity parquets already on disk are skipped.
+Pulls country/IR for the window plus every ASN in the Stage 1 population and
+the D-014 frozen control population (config/controls.yaml) - the control-side
+IODA data D-014's artifact check and any full-period control comparison
+depend on. Resumable: per-entity parquets already on disk are skipped.
 """
 
 import argparse
 import csv
 from pathlib import Path
+
+import yaml
 
 from src.common.config import CONFIG_DIR, DATA_DIR, Config
 from src.common.log import get_logger
@@ -25,6 +29,16 @@ def load_ir_asns() -> list[int]:
         raise SystemExit(f"{path} not found - run `make population` first")
     with open(path, newline="") as f:
         return [int(row["asn"]) for row in csv.DictReader(f)]
+
+
+def load_control_asns() -> list[int]:
+    """D-014 frozen control ASNs (TR/AE/PK) - empty list if not yet frozen."""
+    path = CONFIG_DIR / "controls.yaml"
+    if not path.exists():
+        return []
+    with open(path) as f:
+        controls = yaml.safe_load(f)
+    return [asn for asns in controls["asns"].values() for asn in asns]
 
 
 def main() -> None:
@@ -62,18 +76,19 @@ def main() -> None:
     ioda_dir = DATA_DIR / "ioda" / "baseline" if args.baseline else DATA_DIR / "ioda"
     log.info("window %s -> %s, signals %s -> %s", to_iso(start), to_iso(end), signals, ioda_dir)
 
+    max_query = cfg.ioda_max_query_seconds
     fetch_to_parquet(
         ioda_dir / "country_IR.parquet", base, "country", "IR",
-        start, end, signals, interval,
+        start, end, signals, interval, max_query,
     )
 
     if not args.country_only:
-        asns = load_ir_asns()
+        asns = load_ir_asns() + load_control_asns()
         log.info("pulling %d ASNs", len(asns))
         for i, asn in enumerate(asns, 1):
             fetch_to_parquet(
                 ioda_dir / "asn" / f"{asn}.parquet", base, "asn", str(asn),
-                start, end, signals, interval,
+                start, end, signals, interval, max_query,
             )
             if i % 50 == 0:
                 log.info("progress: %d/%d ASNs", i, len(asns))

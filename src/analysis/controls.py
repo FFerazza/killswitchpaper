@@ -10,11 +10,13 @@ This is the IODA-side check only (no BGP visibility needed for controls);
 BGP-side control tracking enters Stage 2 with the full-period run.
 
 Usage:
-    python -m src.analysis.controls
+    python -m src.analysis.controls [--window NAME]   # default: test_week
 Output:
-    outputs/control_artifact_check.csv + verdict logged per bin.
+    outputs/control_artifact_check[_NAME].csv + verdict logged per bin
+    (test_week keeps the original bare filename for backward compatibility).
 """
 
+import argparse
 from pathlib import Path
 
 import pandas as pd
@@ -75,6 +77,11 @@ def control_dark_shares(
 
 
 def main() -> None:
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--window", default="test_week",
+                    help="named window from phases.yaml to check (default: test_week)")
+    args = ap.parse_args()
+
     cfg = Config.load()
     controls_path = CONFIG_DIR / "controls.yaml"
     if not controls_path.exists():
@@ -82,7 +89,7 @@ def main() -> None:
     with open(controls_path) as f:
         controls = yaml.safe_load(f)
 
-    w = cfg.test_week
+    w = cfg.window_by_name(args.window)
     grid = list(snapshot_times(w.start, w.end, cfg.rib_interval_hours))
     shares = control_dark_shares(
         controls["asns"],
@@ -95,7 +102,8 @@ def main() -> None:
     threshold = float(controls["artifact_bin_share"])
     shares["artifact"] = shares["dark_share"] >= threshold
 
-    out = OUTPUTS_DIR / "control_artifact_check.csv"
+    suffix = "" if args.window == "test_week" else f"_{args.window}"
+    out = OUTPUTS_DIR / f"control_artifact_check{suffix}.csv"
     out.parent.mkdir(parents=True, exist_ok=True)
     shares.to_csv(out, index=False)
     for r in shares.itertuples():

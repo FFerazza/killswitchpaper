@@ -1,28 +1,28 @@
 asn,org_name,type,notes
-1756,Shiraz Hamyar Co.,,
-3263,Pishgaman Toseeh Ertebatat Company (Private Joint Stock),,
+1756,Shiraz Hamyar Co.,isp,Regional (Shiraz); name-based
+3263,Pishgaman Toseeh Ertebatat Company (Private Joint Stock),isp,Major private ISP (Yazd); main AS 49100; 9 ASNs in group
 5484,Shabakeh Gostar Shahriyar Co. (Ltd.),,
 5542,"Ministry of Health, Treatment and Medical Education",,
 5618,DP IRAN PLC,,
 5627,Shahrood University of Technology,,
-6736,Institute for Research in Fundamental Sciences,,
+6736,Institute for Research in Fundamental Sciences,education,IPM research institute; historic .ir operator
 8604,Pardazeshgaran Almas Pasargad Co. Pjs,,
 8868,Khallagh Borhan Market Development for Creative Industries Co,,
 9147,Homaye Jahan Nama Co. ( Private Joint Stock),,
-12660,Sharif University Of Technology,,
+12660,Sharif University Of Technology,education,
 12697,Tose Masiryabi Shabake Aria PJSC,,
-12880,Iran Information Technology Company PJSC,,
+12880,Iran Information Technology Company PJSC,state_telecom,Ex-DCI national data carrier; website tic.ir (gateway umbrella); AS12880 always-reachable
 13231,Baharan PLC,,
 13235,Nik Rayan Parsian Computer Services Cooperative Company,,
-15402,Pishgaman Tejarat Sayar Company (Private Joint Stock),,
-15611,Iranian Research Organization for Science & Technology,,
+15402,Pishgaman Tejarat Sayar Company (Private Joint Stock),other,"Pishgaman group arm, 1 prefix, role unclear"
+15611,Iranian Research Organization for Science & Technology,education,IROST
 15907,Imam Khomeini International University of Qazvin,,
-16018,Public JSC Bank Sepah,,
+16018,Public JSC Bank Sepah,financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
 16235,Pouya Nazm Najafabad Computer Co(PJS),,
 16286,University of Kashan,,
 16292,Kermanshah University of Medical Science and Health Service,,
 16320,Fanavaran Eniac Rayaneh PJSC,,
-16322,Parsan Lin Co. PJS,,
+16322,Parsan Lin Co. PJS,isp,"ParsOnline, #11 eyeballs, since 2001"
 20744,Islamic Republic of Iran Post PJSC,,
 20749,Islamic Republic of Iran Post PJSC,,
 20801,Islamic Republic of Iran Post PJSC,,
@@ -30,106 +30,106 @@ asn,org_name,type,notes
 21071,Islamic Republic of Iran Post PJSC,,
 21112,Islamic Republic of Iran Post PJSC,,
 21121,Islamic Republic of Iran Post PJSC,,
-21170,Shazand Petrochemical Company (Private Joint Stock),,
-21341,Soroush Rasanheh Company Ltd,,
+21170,Shazand Petrochemical Company (Private Joint Stock),energy,Self-identifying name (oil/gas/petrochemical/power utility); D-019 extension
+21341,Soroush Rasanheh Company Ltd,isp,"SINET access provider, eyeball, Tehran"
 21419,PISHTAZE E JADID INFORMATION COMPANY (Ltd.),,
-24631,Tose'h Fanavari Ertebabat Pasargad Arian Co. PJS,,
+24631,Tose'h Fanavari Ertebabat Pasargad Arian Co. PJS,isp,"FanapTelecom (Pasargad Bank group); FCP + datacenter mix; ownership financial-group, function connectivity"
 24707,Melli Pakhsh Faravardehay Nafti Iran PJSC,,
 24737,Islamic Republic of Iran Post PJSC,,
 24741,Islamic Republic of Iran Post PJSC,,
 24779,Islamic Republic of Iran Post PJSC,,
 24988,Islamic Republic of Iran Post PJSC,,
-25124,Datak Company LLC,,
-25184,Afranet,,
+25124,Datak Company LLC,isp,"Datak Telecom, long-standing ISP; not web-verified this pass"
+25184,Afranet,isp,"afranet.ir, #30 eyeballs, since 2002"
 25202,Islamic Republic of Iran Post PJSC,,
 25207,Islamic Republic of Iran Post PJSC,,
 25239,Islamic Republic of Iran Post PJSC,,
 25243,Islamic Republic of Iran Post PJSC,,
 25264,Afagh Andish Dadeh Pardis Co. Ltd,,
 25306,IsIran,,
-29068,University of Tehran,,
+29068,University of Tehran,education,
 29077,MOSHAVERIN PARSAYE BARIN Company Ltd.,,
 29079,IRNA,,
-29350,Islamic Republic of Iran Post PJSC,,
+29350,Islamic Republic of Iran Post PJSC,government,National postal operator; 19 small ASNs
 29577,Isfahan University of Technology,,
 30902,Moasese Gostaresh Etelaat Va Ertebatat Farhangi Neda Rayaneh,,
-31175,Securities and Exchange Organization,,
-31182,Saman Bank PJSC,,
-31303,National Iranian Oil Company,,
+31175,Securities and Exchange Organization,financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
+31182,Saman Bank PJSC,financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
+31303,National Iranian Oil Company,energy,Self-identifying name (oil/gas/petrochemical/power utility); D-019 extension
 31476,Morva System Engineering Technical Company Private Joint Stock,,
-31549,Aria Shatel PJSC,,
+31549,Aria Shatel PJSC,isp,"Shatel DSL, #5 eyeballs IR; upstreams incl AS205647+TIC"
 34078,TOSE'EH ERTEBATAT NOVIN ARIA CO PJS,,
-34369,Aria Shatel PJSC,,
+34369,Aria Shatel PJSC,isp,"Shatel DSL, #5 eyeballs IR; upstreams incl AS205647+TIC"
 34412,Saba Abr Mizban LLC,,
 34513,Tarashe Sabz Tehran Co. Ltd.,,
 34592,Iranian Presidential Administration,,
-34636,Asiatech Data Transmission company,,
-34837,Institute for Research in Fundamental Sciences,,
-34871,Part Financial Information Processing Co.,,
-34918,Pishgaman Toseeh Ertebatat Company (Private Joint Stock),,
+34636,Asiatech Data Transmission company,isp,Major ISP + IDC (Laser brand); main eyeball AS 43754; AS34636 always-reachable
+34837,Institute for Research in Fundamental Sciences,education,IPM research institute; historic .ir operator
+34871,Part Financial Information Processing Co.,financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
+34918,Pishgaman Toseeh Ertebatat Company (Private Joint Stock),isp,Major private ISP (Yazd); main AS 49100; 9 ASNs in group
 34947,Alibaba Travel Company (LTD),,
 35043,Allameh Tabataba'i University,,
 35088,Rahyab Rayaneh Gostar,,
-35285,Institute for Research in Fundamental Sciences,,
-35615,Middle East Bank (PJSC),,
-35690,IRAN INSURANCE JOINT STOCK COMPANY,,
+35285,Institute for Research in Fundamental Sciences,education,IPM research institute; historic .ir operator
+35615,Middle East Bank (PJSC),financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
+35690,IRAN INSURANCE JOINT STOCK COMPANY,financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
 35766,Mizbani Dadehaye Mabna PJSC,,
-39074,Sepanta Communication Development Co. Ltd,,
+39074,Sepanta Communication Development Co. Ltd,isp,Sepanta business ISP; not web-verified this pass
 39164,Dade Samane Fanava Company (PJS),,
-39200,Institute for Research in Fundamental Sciences,,
-39308,ANDISHE SABZ KHAZAR CO. P.J.S.,,
+39200,Institute for Research in Fundamental Sciences,education,IPM research institute; historic .ir operator
+39308,ANDISHE SABZ KHAZAR CO. P.J.S.,isp,ASK regional eyeball ISP (askiran.com); always-reachable despite consumer profile - flag for H3
 39364,Hormoz IT & Network Waves Connection Co. (PJS),,
 39454,Sindad Network Technology PJSC,,
 39466,Ahang Rayan Malayer Co. LTD,,
-39501,Parvaresh Dadeha Co. Private Joint Stock,,
-39571,Sadad Informatics Corporation PJSC,,
+39501,Parvaresh Dadeha Co. Private Joint Stock,isp,"Reclassified from hosting 2026-07-07 (FF-approved): bgp.tools flags eyeball network (#45 Iran eyeballs, #110 unique domains), single upstream AS42337 Respina (a downstream customer of a consumer ISP, not independent infra); slow/uniform restoration timing (78min median across 66/67 of its blocks) matched general population, not the fast/always-reachable CDN cohort. Original hosting tag was a content/registry tag, not bgp.tools-verified."
+39571,Sadad Informatics Corporation PJSC,financial,Sadad Informatics - Bank Melli IT arm; D-019 extension
 39650,Atrin Information & Communications Technology Company PJS,,
-41061,Iran Zamin Bank PJSC,,
+41061,Iran Zamin Bank PJSC,financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
 41152,Ertebatat Fara Gostar Shargh PJSC,,
 41620,Iran University Of Science and Technology,,
-41689,Asiatech Data Transmission company,,
+41689,Asiatech Data Transmission company,isp,Major ISP + IDC (Laser brand); main eyeball AS 43754; AS34636 always-reachable
 41797,Apadana Ceram Co PJSC,,
 41856,Pardazesh Rayaneh Bita Co.Ltd,,
-41881,Fanava Group,,
+41881,Fanava Group,other,"ICT holding, 1 prefix; EU-sanctions note in RIPE DB; role unclear"
 41900,Netafraz Iranian Ltd.,,
-42019,Aftab Communications and Informatics Private Joint Stock Company,,
+42019,Aftab Communications and Informatics Private Joint Stock Company,other,IT/communications services co; 'informatic' pattern false positive; D-019 extension
 42043,Parsian High Tech Company PJSC,,
 42143,Iran Airports & Air Navigation Company (Private Joint Stock),,
 42170,Pooya Parto Qeshm Cooperative Company,,
 42288,Shahkar Towse'e Tejarat Mana PJSC,,
 42337,Respina Networks & Beyond PJSC,,
-42440,Rayaneh Danesh Golestan Complex P.J.S. Co.,,
+42440,Rayaneh Danesh Golestan Complex P.J.S. Co.,isp,Regional (Golestan); name-based
 42468,Behin Ertebatat Faragir Co. Ltd,,
-42586,IRIB (Islamic Republic of Iran Broadcasting),,
-42750,Marun Petrochemical Co.,,
-42867,National Iranian Oil Company PJSC,,
-42907,Research Institute Of Petroleum Industry,,
+42586,IRIB (Islamic Republic of Iran Broadcasting),media,State broadcaster; recoded government->media per D-019
+42750,Marun Petrochemical Co.,energy,Self-identifying name (oil/gas/petrochemical/power utility); D-019 extension
+42867,National Iranian Oil Company PJSC,energy,Self-identifying name (oil/gas/petrochemical/power utility); D-019 extension
+42907,Research Institute Of Petroleum Industry,energy,Research Institute of Petroleum Industry; research/education boundary noted; D-019 extension
 42915,Engeneering Designing and Supply the parts of Iran Khodro PJSC,,
-42990,Bank Saderat Iran PJSC,,
-43005,Pishgaman Tejarat Sayar Company (Private Joint Stock),,
-43135,Moavenate rasaneh majazi seda va sima,,
+42990,Bank Saderat Iran PJSC,financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
+43005,Pishgaman Tejarat Sayar Company (Private Joint Stock),isp,Validation resolution: coded isp (Pishgaman ISP group member)
+43135,Moavenate rasaneh majazi seda va sima,media,IRIB virtual-media deputy (Seda va Sima online arm); D-019 extension
 43211,Noavaran Fan Avazeh Co. PJS,,
-43212,Pejvak Ertebatat Atiyeh Roshan Company (P.J.S.),,
-43245,Datak Company LLC,,
-43343,Tose'h Fanavari Ertebabat Pasargad Arian Co. PJS,,
-43358,Mobile Communication Company of Iran PLC,,
+43212,Pejvak Ertebatat Atiyeh Roshan Company (P.J.S.),hosting,CDN-tagged but #45 eyeballs; upstream AS205647; always-reachable
+43245,Datak Company LLC,isp,"Datak Telecom, long-standing ISP; not web-verified this pass"
+43343,Tose'h Fanavari Ertebabat Pasargad Arian Co. PJS,isp,"FanapTelecom (Pasargad Bank group); FCP + datacenter mix; ownership financial-group, function connectivity"
+43358,Mobile Communication Company of Iran PLC,mobile,"MCI/Hamrahe Avval, carrier, #3 eyeballs IR"
 43395,Pooya Parto Qeshm Cooperative Company,,
 43415,Secure Infrastructure of Transactional Services Company PJSC,,
-43487,Saman Electronic Payment Kish PJS,,
+43487,Saman Electronic Payment Kish PJS,financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
 43510,Mehvar Machine,,
 43528,Behpardaz Jahan PJSC,,
-43546,Islamic Republic of Iran Post PJSC,,
-43657,Novin Insurance Co. PJS,,
+43546,Islamic Republic of Iran Post PJSC,government,National postal operator; 19 small ASNs
+43657,Novin Insurance Co. PJS,financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
 43689,Patron Technology Persia Ltd,,
-43754,Asiatech Data Transmission company,,
+43754,Asiatech Data Transmission company,isp,Major ISP + IDC (Laser brand); main eyeball AS 43754; AS34636 always-reachable
 43955,Negah Roshan Pars Company (PJS),,
 43965,Tehran University of Medical Science,,
 44045,Kish Iran Credit Card Corporation (Public Corporation),,
 44090,Enteghal Dadeh Mahan Co. PJSC,,
-44208,Farahoosh Dena PLC,,
+44208,Farahoosh Dena PLC,hosting,farahoosh.ir web hosting; upstream Pishgaman
 44243,Iman Hamrah Behpardaz Company- Ltd,,
-44244,Iran Cell Service and Communication Company,,
-44285,Sefroyek Pardaz Engineering PJSC,,
+44244,Iran Cell Service and Communication Company,mobile,"MTN Irancell, #2 eyeballs IR"
+44285,Sefroyek Pardaz Engineering PJSC,hosting,"Content host, #12 unique domains IR; upstream Asiatech"
 44375,Asmanfaraz Sepahan Company (P.J.S),,
 44400,Ertebatat Sabet Parsian Co. PJS,,
 44410,Towse'eh Sarmayeh Gozari Entekhab Group PJSC,,
@@ -137,20 +137,20 @@ asn,org_name,type,notes
 44498,Kish It Group Company Ltd.,,
 44531,Rayanmehr Danesh Sanj Company Ltd,,
 44607,Khallagh Borhan Market Development for Creative Industries Co,,
-44609,Fars News Agency Cultural Arts Institute,,
+44609,Fars News Agency Cultural Arts Institute,media,Fars News Agency; D-019 extension
 44650,BISTALK TELECUMUNICATION SYSTEMS COMPANY (P.J.S.),,
 44685,Patron Technology Persia Ltd,,
-44889,Farhang Azma Communications Company LTD,,
+44889,Farhang Azma Communications Company LTD,isp,Validation resolution: coded isp (access/comms provider; hosting-boundary)
 44932,Fannavaran-e Idea Pardaz-e Saba PJSC,,
 44966,Zirsakht Fanavari Etelaat va Ertebatat Pasargad Aryan PJS,,
 44983,Faraso Samaneh Pasargad Ltd.,,
 47162,Pooya Parto Qeshm Cooperative Company,,
-47188,Press TV Co.,,
+47188,Press TV Co.,media,"Press TV, state international broadcaster; D-019 extension"
 47216,Ettelaat Fanavarn-E Tookan Co Ltd,,
-47262,Hamara System Tabriz Engineering Company,,
+47262,Hamara System Tabriz Engineering Company,isp,Regional (Tabriz); name-based
 47285,Patron Technology Persia Ltd,,
 47308,Web Gostaran Bandar Company (PJS),,
-47330,Mobin Net Communication Company (Private Joint Stock),,
+47330,Mobin Net Communication Company (Private Joint Stock),isp,"MobinNet fixed-wireless/WiMAX, #15 eyeballs"
 47376,Web Gostaran Bandar Company (PJS),,
 47430,Arman White Water Way PJS,,
 47539,Kimiya Ertebat Dana Company Ltd,,
@@ -158,7 +158,7 @@ asn,org_name,type,notes
 47558,Kajeh Nasir Toosi University of Technology,,
 47603,Zirsakht Pishro Abr Damavand Private Joint Stock Company,,
 47643,Khallagh Borhan Market Development for Creative Industries Co,,
-47817,Bank Pasargad PJSC,,
+47817,Bank Pasargad PJSC,financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
 47843,TOSE'EH ERTEBATAT NOVIN ARIA CO PJS,,
 47981,Iran University of Medical Sciences,,
 47990,Pooya Parto Qeshm Cooperative Company,,
@@ -175,30 +175,30 @@ asn,org_name,type,notes
 48359,Hesabgar Pardaz Gharb PJSC,,
 48391,Pars Data Processing Company (LTD),,
 48410,Tamin Ertebatat Venus PJS,,
-48431,Bozorg Net-e Aria,,
+48431,Bozorg Net-e Aria,isp,Name-based
 48434,Tebyan-e-Noor Cultural-Artistic Institute,,
 48551,Sindad Network Technology PJSC,,
 48555,Iranian Information Technology PJSC,,
 48597,Ali Abedi,,
 48601,Mobtaker Tejarat Novin Vira Ltd,,
-48608,Mellat Insurance Public Joint Stock Company,,
+48608,Mellat Insurance Public Joint Stock Company,financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
 48677,Rajman Information Structures PJSC,,
-48715,Sefroyek Pardaz Engineering PJSC,,
+48715,Sefroyek Pardaz Engineering PJSC,hosting,"Content host, #12 unique domains IR; upstream Asiatech"
 48762,Iran Aseman Airlines PJSC,,
 48820,Ali Niknam,,
 48898,Medical Science University Of Kashan,,
-48903,Rasaneh Mehr Vatan Co. PJS,,
-48944,Khalij Fars Ettela Resan LTD,,
+48903,Rasaneh Mehr Vatan Co. PJS,media,Name contains 'rasaneh' (media); no other evidence; D-019 extension
+48944,Khalij Fars Ettela Resan LTD,isp,Regional (Persian Gulf); name-based
 49022,Patron Technology Persia Ltd,,
 49099,Tadbir Pardaz IT Group LTD,,
-49100,Pishgaman Toseeh Ertebatat Company (Private Joint Stock),,
+49100,Pishgaman Toseeh Ertebatat Company (Private Joint Stock),isp,Major private ISP (Yazd); main AS 49100; 9 ASNs in group
 49103,Asr-e Enteghal-e Dadeha Company (Private J.S.),,
 49148,Atieh Dadeh Pardaz PJSC,,
 49207,Sangan Khorasan Steel Mineral Industry Company (JSC),,
 49228,Hormozgan University Of Medical Sciences,,
 49382,FANAVARI HAMRAH PAYDA Co. ( Private J.S.),,
-49433,Bank Refah Kargaran,,
-49517,Asia Insurance Co. (Publicly Traded),,
+49433,Bank Refah Kargaran,financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
+49517,Asia Insurance Co. (Publicly Traded),financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
 49556,Web Dadeh Paydar Co (Ltd),,
 49596,Fara Negar Pardaz Noor Khuzestan Co.JSP,,
 49613,Arian Web Pars,,
@@ -206,7 +206,7 @@ asn,org_name,type,notes
 49676,Sindad Network Technology PJSC,,
 49680,Armaghan Rahe Talaie,,
 49792,Amirkabir University of Technology,,
-49796,Shaparak Electronic Card Payment Network Company PJS,,
+49796,Shaparak Electronic Card Payment Network Company PJS,financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
 49801,Hezardastan Unit Cloud Computing PJSC,,
 49847,Pardazeshgar Ray Azma Co. Ltd.,,
 49872,Jahan Ruye Khat PJSC,,
@@ -228,43 +228,43 @@ asn,org_name,type,notes
 50733,Ertebat Gostaran Bina PJSC,,
 50749,Yaghoot Pars Asia Cooperative Company,,
 50795,Datis Arian Gheshm Software Company PJSC,,
-50810,Mobin Net Communication Company (Private Joint Stock),,
-50855,Resalat Interest-free loaning Bank PJS,,
+50810,Mobin Net Communication Company (Private Joint Stock),isp,"MobinNet fixed-wireless/WiMAX, #15 eyeballs"
+50855,Resalat Interest-free loaning Bank PJS,financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
 50992,Telecommunication Infrastructure Company,,
 51026,Dade Pardazi Mobinhost Co LTD,,
-51074,GOSTARESH-E-ERTEBATAT-E MABNA COMPANY (Private Joint Stock),,
-51119,Iran Telecommunication Company PJS,,
+51074,GOSTARESH-E-ERTEBATAT-E MABNA COMPANY (Private Joint Stock),isp,Mabna Telecom broadband operator; sampled AS content-tagged tiny (SSJCO)
+51119,Iran Telecommunication Company PJS,state_telecom,"Incumbent (TCI); #1 eyeballs, #1 IPv4 space IR; consumer ADSL arm of incumbent -> state_telecom per D-018 rule 2a"
 51130,Homaye Jahan Nama Co. ( Private Joint Stock),,
-51168,Greater Tehran Electric Power Distribution PJSC,,
+51168,Greater Tehran Electric Power Distribution PJSC,energy,Self-identifying name (oil/gas/petrochemical/power utility); D-019 extension
 51235,ARAAX DADEH GOSTAR information and communication Development Co (Private Joint Stock),,
-51241,Islamic Republic of Iran Post PJSC,,
+51241,Islamic Republic of Iran Post PJSC,government,National postal operator; 19 small ASNs
 51280,Parsian Electronic Commerce PJSC,,
 51355,Orum Torkan Rayaneh LLC,,
 51411,Toos-Ashena Pjsc,,
-51431,Rasaneh Avabarid Private Joint Stock Company,,
-51433,Asiatech Data Transmission company,,
-51460,Sina Bank,,
+51431,Rasaneh Avabarid Private Joint Stock Company,media,Name contains 'rasaneh' (media); no other evidence; D-019 extension
+51433,Asiatech Data Transmission company,isp,Major ISP + IDC (Laser brand); main eyeball AS 43754; AS34636 always-reachable
+51460,Sina Bank,financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
 51469,Petiak System Co JSC,,
-51554,Pars Oil & Gas Company (Private Joint Stock),,
-51618,Eghtesad Novin Bank PJSC,,
-51732,MAPNA Power Plants Development & Construction PLC,,
+51554,Pars Oil & Gas Company (Private Joint Stock),energy,Self-identifying name (oil/gas/petrochemical/power utility); D-019 extension
+51618,Eghtesad Novin Bank PJSC,financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
+51732,MAPNA Power Plants Development & Construction PLC,energy,MAPNA - power plant construction/operation group; D-019 extension
 51759,"""Pirooz Leen"" LLC",,
-51777,Alborz Insurance Company,,
-51785,Karafarin Bank Plc.,,
+51777,Alborz Insurance Company,financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
+51785,Karafarin Bank Plc.,financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
 51788,Part Payam Paya LLC,,
-51828,Iran Telecommunication Company PJS,,
+51828,Iran Telecommunication Company PJS,state_telecom,"Incumbent (TCI); #1 eyeballs, #1 IPv4 space IR; consumer ADSL arm of incumbent -> state_telecom per D-018 rule 2a"
 51889,Gostaresh Pardazesh Dana Negar Co.(PJSC),,
 51897,"MIHAN COMMUNICATION SYSTEMS CO.,LTD",,
 52049,Iranian Net Communication and Electronic Services Co PJS,,
-52070,Parsian Bank (Public Joint-Stock),,
-52133,Islamic Republic of Iran Post PJSC,,
-52134,Islamic Republic of Iran Post PJSC,,
-52135,Islamic Republic of Iran Post PJSC,,
-52136,Islamic Republic of Iran Post PJSC,,
-52137,Islamic Republic of Iran Post PJSC,,
+52070,Parsian Bank (Public Joint-Stock),financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
+52133,Islamic Republic of Iran Post PJSC,government,National postal operator; 19 small ASNs
+52134,Islamic Republic of Iran Post PJSC,government,National postal operator; 19 small ASNs
+52135,Islamic Republic of Iran Post PJSC,government,National postal operator; 19 small ASNs
+52136,Islamic Republic of Iran Post PJSC,government,National postal operator; 19 small ASNs
+52137,Islamic Republic of Iran Post PJSC,government,National postal operator; 19 small ASNs
 52140,United Nations High Commissioner for Refugees,,
 52155,Caspian Applied Systems Services Supplying Company (Private Joint-Stock),,
-52196,Tehran Regional Electricity Joint Stock Company,,
+52196,Tehran Regional Electricity Joint Stock Company,energy,Self-identifying name (oil/gas/petrochemical/power utility); D-019 extension
 52209,Atis Omran Sevin PSJ,,
 56375,Imam Khomeini Relief Foundation IKRF,,
 56402,Dadeh Gostar Asr Novin P.J.S. Co.,,
@@ -277,24 +277,24 @@ asn,org_name,type,notes
 56548,Negin Ertebatate Ava Company PJS,,
 56616,Tarahan Shabake Sharif LTD,,
 56632,Aryan Satellite Co. (Private Joint Stock),,
-56660,Pishgaman Toseeh Ertebatat Company (Private Joint Stock),,
+56660,Pishgaman Toseeh Ertebatat Company (Private Joint Stock),isp,Major private ISP (Yazd); main AS 49100; 9 ASNs in group
 56703,"MEHR AVA GOSTAR PARSIAN INFORMATION ENGINEERING CO.,LTD",,
 56749,Roshangaran Ertebatat Rayaneh PJSC,,
 56765,Shahid Beheshti university,,
 56861,Iranian Information Technology Company PLC,,
 57027,Aria Jahangiri Far,,
 57067,KEYANA Information Technology Co. Ltd.,,
-57218,"""Rightel Communication Service Company PJS""",,
+57218,"""Rightel Communication Service Company PJS""",mobile,"RighTel, 3rd MNO, #4 eyeballs IR"
 57230,Aria Web Development LLC,,
-57235,Chapar Rasaneh LLC,,
-57241,Maskan Bank,,
+57235,Chapar Rasaneh LLC,media,Name contains 'rasaneh' (media); no other evidence; D-019 extension
+57241,Maskan Bank,financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
 57292,"ICT Research Institute (Iran Telecommunications Research Center ""ITRC"")",,
 57298,Pouyasazan Fanavari-ye Ettela'at LLC,,
-57366,Islamic Republic of Iran Post PJSC,,
-57385,Islamic Republic of Iran Post PJSC,,
-57386,Islamic Republic of Iran Post PJSC,,
-57387,Islamic Republic of Iran Post PJSC,,
-57391,Asiatech Data Transmission company,,
+57366,Islamic Republic of Iran Post PJSC,government,National postal operator; 19 small ASNs
+57385,Islamic Republic of Iran Post PJSC,government,National postal operator; 19 small ASNs
+57386,Islamic Republic of Iran Post PJSC,government,National postal operator; 19 small ASNs
+57387,Islamic Republic of Iran Post PJSC,government,National postal operator; 19 small ASNs
+57391,Asiatech Data Transmission company,isp,Major ISP + IDC (Laser brand); main eyeball AS 43754; AS34636 always-reachable
 57405,"MIHAN COMMUNICATION SYSTEMS CO.,LTD",,
 57457,Asan Pardakht Persian Co. LTD,,
 57461,Poshtkar Rayaneh Kharg Company PJS,,
@@ -302,63 +302,63 @@ asn,org_name,type,notes
 57497,Faraso Samaneh Pasargad Ltd.,,
 57543,Shabakieh Isfahan Co PJSC,,
 57563,isfahan university of medical sciences & health services,,
-57574,Agriculture Bank PJSC,,
-57577,Iran Power Generation transmission & Distribution Management Co.,,
+57574,Agriculture Bank PJSC,financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
+57577,Iran Power Generation transmission & Distribution Management Co.,energy,Self-identifying name (oil/gas/petrochemical/power utility); D-019 extension
 57625,Pardazeshgaran Almas Pasargad Co. Pjs,,
 57687,"Abzarhaye Farsi Shabakeh Co.,LTD.",,
 57745,Tarbiat Modares University,,
-57755,Pishgaman Toseeh Ertebatat Company (Private Joint Stock),,
+57755,Pishgaman Toseeh Ertebatat Company (Private Joint Stock),isp,Major private ISP (Yazd); main AS 49100; 9 ASNs in group
 57816,Samen Ertebat Asr Co. (P.J.S.),,
-57831,Pishgaman Toseeh Ertebatat Company (Private Joint Stock),,
+57831,Pishgaman Toseeh Ertebatat Company (Private Joint Stock),isp,Major private ISP (Yazd); main AS 49100; 9 ASNs in group
 57880,Bartar Andishan Avaye Bandar PJSC,,
 57986,Sigma IT Infrastructures Development Co. (Ltd.),,
 58030,Sorat Gostar Abr Datis LLC,,
 58053,Tam Iran Khodro Company,,
 58080,Honar Rayaneh Pooya Andisheh PJSC,,
 58081,Baloot Communication Network Private Limited Company,,
-58085,Iran Telecommunication Company PJS,,
+58085,Iran Telecommunication Company PJS,state_telecom,"Incumbent (TCI); #1 eyeballs, #1 IPv4 space IR; consumer ADSL arm of incumbent -> state_telecom per D-018 rule 2a"
 58104,University of Isfahan,,
 58121,Arya Pars Internet Gostar LLC,,
 58125,Trade Promotion Organization Of Iran,,
 58142,Mizban Dade Pasargad LLC,,
 58152,Woshka Niknam,,
-58161,Islamic Republic of Iran Post PJSC,,
+58161,Islamic Republic of Iran Post PJSC,government,National postal operator; 19 small ASNs
 58167,Productive Distributive Farzanegan Dadeh Pardaz Taha Cooperative Company,,
-58168,Islamic Republic of Iran Post PJSC,,
+58168,Islamic Republic of Iran Post PJSC,government,National postal operator; 19 small ASNs
 58169,Iran Grid Management Company (IGMC),,
 58192,Atis Omran Sevin PSJ,,
-58200,Islamic Republic of Iran Post PJSC,,
-58201,Islamic Republic of Iran Post PJSC,,
+58200,Islamic Republic of Iran Post PJSC,government,National postal operator; 19 small ASNs
+58201,Islamic Republic of Iran Post PJSC,government,National postal operator; 19 small ASNs
 58205,Part Mehr Iranian High-tech and Telecommunication Cooperative,,
-58216,Pishgaman Toseeh Ertebatat Company (Private Joint Stock),,
-58224,Iran Telecommunication Company PJS,,
-58248,Islamic Republic of Iran Post PJSC,,
+58216,Pishgaman Toseeh Ertebatat Company (Private Joint Stock),isp,Major private ISP (Yazd); main AS 49100; 9 ASNs in group
+58224,Iran Telecommunication Company PJS,state_telecom,"Incumbent (TCI); #1 eyeballs, #1 IPv4 space IR; consumer ADSL arm of incumbent -> state_telecom per D-018 rule 2a"
+58248,Islamic Republic of Iran Post PJSC,government,National postal operator; 19 small ASNs
 58249,Sky Dragon Company With Limited Liability,,
 58256,Rayaneh Gostar Farzanegan Ahwaz Company LTD.,,
 58262,Negah Roshan Pars Company (PJS),,
-58263,Islamic Republic of Iran Post PJSC,,
+58263,Islamic Republic of Iran Post PJSC,government,National postal operator; 19 small ASNs
 58303,Rasana Pishtaz Iranian Service Cooperative Co.,,
 58331,Rayaneh Asr-e Ertebat Bam Technology and Engineering Cooperative Co,,
-58333,Saman Insurance Co. (Public Joint Stock),,
+58333,Saman Insurance Co. (Public Joint Stock),financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
 59431,"Ravand Tazeh Co,.PJS.",,
 59441,NOAVARAN SHABAKEH SABZ MEHREGAN (Ltd.),,
-59442,GOSTARESH-E-ERTEBATAT-E MABNA COMPANY (Private Joint Stock),,
-59481,Pishgaman Toseeh Ertebatat Company (Private Joint Stock),,
+59442,GOSTARESH-E-ERTEBATAT-E MABNA COMPANY (Private Joint Stock),isp,Mabna Telecom broadband operator; sampled AS content-tagged tiny (SSJCO)
+59481,Pishgaman Toseeh Ertebatat Company (Private Joint Stock),isp,Major private ISP (Yazd); main AS 49100; 9 ASNs in group
 59501,Rahbord Houshmand Shahr PJSC,,
 59506,Shiraz University of Medical Science and Health Care Services,,
 59553,Jahrom Univesity Of Medical Sciences,,
 59573,Sari System Bandarabas Company LLC,,
-59587,Iran Telecommunication Company PJS,,
+59587,Iran Telecommunication Company PJS,state_telecom,"Incumbent (TCI); #1 eyeballs, #1 IPv4 space IR; consumer ADSL arm of incumbent -> state_telecom per D-018 rule 2a"
 59623,"Zarin Amol Gozar Technology Development Co., Ltd",,
-59628,Iran Telecommunication Company PJS,,
+59628,Iran Telecommunication Company PJS,state_telecom,"Incumbent (TCI); #1 eyeballs, #1 IPv4 space IR; consumer ADSL arm of incumbent -> state_telecom per D-018 rule 2a"
 59635,Dadeh Pardazan Mojtame Hormoz Company Ltd.,,
 59643,Abr Afzar Sedna Ertebat Company (LTD.),,
-59654,Fars Province Gas Company (PJS),,
+59654,Fars Province Gas Company (PJS),energy,Self-identifying name (oil/gas/petrochemical/power utility); D-019 extension
 59691,Pouya shabakeh Asr Co. (LTD.),,
-59703,Parvaresh Dadeha Co. Private Joint Stock,,
+59703,Parvaresh Dadeha Co. Private Joint Stock,isp,"Validation resolution: coded isp (was hosting; bgp.tools content-tag, reviewer judgment preferred)"
 59708,Rayan Hamafza Company Public Joint Stock,,
-59754,Bank of Industry and Mine PJSC,,
-59757,Sarmad Insurance PJSC,,
+59754,Bank of Industry and Mine PJSC,financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
+59757,Sarmad Insurance PJSC,financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
 59794,Amirkabir University of Technology,,
 59797,Industrial Projects Management Company (P.J.S) of Iran,,
 59838,Naghsh Awal Keyfiat PJSC,,
@@ -372,37 +372,37 @@ asn,org_name,type,notes
 60014,Abramad Technological Infrastructures Development Company PJS,,
 60077,Asre Dadeha Asiatech,,
 60138,Naroon Intelligent Communications LTD.,,
-60148,Iran Information Technology Company PJSC,,
+60148,Iran Information Technology Company PJSC,state_telecom,Ex-DCI national data carrier; website tic.ir (gateway umbrella); AS12880 always-reachable
 60178,Mohammad Sheikhe Sajadie,,
-60248,Sefroyek Pardaz Engineering PJSC,,
-60249,Islamic Republic of Iran Post PJSC,,
+60248,Sefroyek Pardaz Engineering PJSC,hosting,"Content host, #12 unique domains IR; upstream Asiatech"
+60249,Islamic Republic of Iran Post PJSC,government,National postal operator; 19 small ASNs
 60256,E-Money Net Developers 24 Company Private Joint Stock,,
-60315,Tehran Securities Exchange Technology Management Co. PLC,,
+60315,Tehran Securities Exchange Technology Management Co. PLC,financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
 60340,Iranian company of Saipa automobile manufacturing Public Joint Stock,,
 60374,Aria Web Development LLC,,
 60394,Saba Hour Yeganeh Co. ( Private Joint Stock),,
-60407,Tourism Bank (Public Joint Stock),,
-60423,E-Money Net Developers 24 Company Private Joint Stock,,
+60407,Tourism Bank (Public Joint Stock),financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
+60423,E-Money Net Developers 24 Company Private Joint Stock,hosting,Derak Cloud CDN/cloud brand; parent name suggests payments - function-over-ownership -> hosting; always-reachable
 60495,Smart Land Solutions Co Ltd.,,
 60512,Bours Kalay Iran PJSC,,
-60516,Bank Ghavamin (Public Joint Stock),,
+60516,Bank Ghavamin (Public Joint Stock),financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
 60562,Ministry Of Health and Medical Education,,
 60577,Behvar Engineering Design Co.,,
 60605,Damavand Electronic Card Company (Private J.S),,
 60627,Rayankadeh Apadana Company Ltd,,
 60631,Vandad Vira Hooman LLC,,
-60637,Fanava Group,,
-60638,Informatics Services PJSC,,
+60637,Fanava Group,other,"ICT holding, 1 prefix; EU-sanctions note in RIPE DB; role unclear"
+60638,Informatics Services PJSC,financial,Informatics Services Corp (ISC) - operates Shetab interbank network; D-019 extension
 60778,Patron Technology Persia Ltd,,
-60786,Ava Mehr Informatics Company (Private Joint Stock),,
+60786,Ava Mehr Informatics Company (Private Joint Stock),other,"Generic informatics co, sector unclear; pattern-nominated only; D-019 extension"
 60811,Saipa Yadak Co. PLC,,
 60887,International Systems Engineering & Automation Company PJS,,
 60932,DADE PARDAZAN AVAYE BANDAR COMPANY,,
-60976,Parsan Lin Co. PJS,,
+60976,Parsan Lin Co. PJS,isp,"ParsOnline, #11 eyeballs, since 2001"
 61008,"MIHAN COMMUNICATION SYSTEMS CO.,LTD",,
-61036,Fanava Group,,
+61036,Fanava Group,other,"ICT holding, 1 prefix; EU-sanctions note in RIPE DB; role unclear"
 61055,Roshangar Rayaneh Tehran Co. Ltd.,,
-61061,Parsan Lin Co. PJS,,
+61061,Parsan Lin Co. PJS,isp,"ParsOnline, #11 eyeballs, since 2001"
 61129,Islamic Azad University,,
 61173,Green Web Samaneh Novin PJSC,,
 61176,City Development and Innovation PJSC,,
@@ -410,40 +410,40 @@ asn,org_name,type,notes
 61239,Naji Research & Development Company Private Join-Stock,,
 61246,IRAN METEOROLOGICAL ORGANIZATION,,
 61248,Ferdowsi University of Mashhad,,
-61250,Ayandeh Bank,,
+61250,Ayandeh Bank,financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
 61362,Mashhad Municipality Information Technology and Communications Organization,,
 61386,Ati Sazan Farhang Tasnim Intitute,,
 61391,Simorgh Scientific Network Services and Communication Company PJS,,
 61962,Sepahan Mapna Equipment Engineering and Manufacturing PJSC,,
 61974,Lotus Net Company (Ltd.),,
-62039,Iran Power Plant Projects Management (MAPNA) PJS,,
+62039,Iran Power Plant Projects Management (MAPNA) PJS,energy,MAPNA project management arm; D-019 extension
 62048,Avini cultural and Art Institute,,
 62132,MEHREGAN ERTEBATAT NOVIN ASIA CO.,,
 62137,Manzoomeh Negaran Co. (PJS),,
-62140,"""Rightel Communication Service Company PJS""",,
+62140,"""Rightel Communication Service Company PJS""",mobile,"RighTel, 3rd MNO, #4 eyeballs IR"
 62173,Sepehr Saye Ban Shokoufaei Company (ltd),,
 62196,Rayan Ravesh Sena Ltd,,
 62198,Melal Credit Company (Public Joint Stock),,
-62229,Fars News Agency Cultural Arts Institute,,
-62238,Sina Financial & Investment Holding Co (PJS),,
+62229,Fars News Agency Cultural Arts Institute,media,Fars News Agency (second AS); D-019 extension
+62238,Sina Financial & Investment Holding Co (PJS),financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
 62250,SINA ATINET Company (Ltd),,
 62263,Ertebat Gostaran Rangin Kaman Co. Ltd,,
 62265,Mahan Air PJSC,,
 62284,ARIYA NET ABAZAR PJSC,,
-62318,Bimeh Ma PJSC,,
+62318,Bimeh Ma PJSC,financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
 62334,Seyed Amir Tabatabaei Anaraki,,
 62367,Pardakht Nowin Arian PJSC,,
 62375,Raya Negar Radin Namdar Information and Technology Company (LTD),,
 62401,Ali Hajyani,,
 62442,Dade Samane Fanava Company (PJS),,
-64399,Farhang Azma Communications Company LTD,,
-64414,Rasaneh Ayandeh Iranian Co PJS,,
+64399,Farhang Azma Communications Company LTD,hosting,"azmagroup.com; content-tagged, #18 AS cone; isp-boundary case"
+64414,Rasaneh Ayandeh Iranian Co PJS,media,Name contains 'rasaneh' (media); no other evidence; D-019 extension
 64422,SIMA RAYAN SHARIF COMPANY (LTD.),,
 64428,Mizban Web Paytakht Co. Ltd.,,
 64434,Mizban Amvaj Sahel Sepehr Bushehr PJSC,,
 64458,Mizban Dade Pasargad LLC,,
 64460,Omid Computer Services Co. (PJS),,
-197207,Mobile Communication Company of Iran PLC,,
+197207,Mobile Communication Company of Iran PLC,mobile,"MCI/Hamrahe Avval, carrier, #3 eyeballs IR"
 197330,PARMIN CLOUD COMPUTING LLC,,
 197343,Toloe Rayaneh Loghman Educational and Cultural Co. LTD,,
 197787,Mehran Heidari,,
@@ -458,7 +458,7 @@ asn,org_name,type,notes
 199137,Ali Norouzi,,
 199467,Hossein Zangooei,,
 199495,Mabna Tejarat Economic Development Group Company-Ltd.,,
-199633,Faradast Energy Falat Co. (Private Joint-Stock),,
+199633,Faradast Energy Falat Co. (Private Joint-Stock),energy,Energy services co (Falat); D-019 extension
 199690,PARDAZESH ABRI RISMAN LTD,,
 199849,"""Gostaresh Etrtebatate Apadana"" Ltd.",,
 199983,Hoshmand shabake dez net,,
@@ -468,7 +468,7 @@ asn,org_name,type,notes
 200312,Golrang System Co. P.J.S,,
 200324,"Mizban Abri Iman Iranian, LLC",,
 200370,Farzanegan Pars Communications Company PJS,,
-200376,Tehran Electric Energy Distribution,,
+200376,Tehran Electric Energy Distribution,energy,Self-identifying name (oil/gas/petrochemical/power utility); D-019 extension
 200406,Javid Berbid Mamasani Information Technology Company PJS,,
 200436,Patron Technology Persia Ltd,,
 200530,Razavi Hospital,,
@@ -500,29 +500,29 @@ asn,org_name,type,notes
 202319,Hezardastan Unit Cloud Computing PJSC,,
 202368,Hezardastan Unit Cloud Computing PJSC,,
 202391,Cooperative Afra ertebatat-e-sabet-e Rasa Co,,
-202468,Noyan Abr Arvan Co. ( Private Joint Stock),,
+202468,Noyan Abr Arvan Co. ( Private Joint Stock),hosting,ArvanCloud CDN; AS205585 always-reachable
 202571,Kharazmi University,,
 202601,Pardis Etelaresan Sepehr Employee's Cooperative Co.,,
-202684,Paya Communication Industries (PJSC),,
+202684,Paya Communication Industries (PJSC),other,"Registered 2025-12-18, zero prefixes, unrouted; peers MobinNet+TIC - watch"
 202697,Homaye Jahan Nama Co. ( Private Joint Stock),,
 202735,Communication Regulatory Authority,,
-202788,Khuzestan Water and Power Authority Co. PJS,,
+202788,Khuzestan Water and Power Authority Co. PJS,energy,Self-identifying name (oil/gas/petrochemical/power utility); D-019 extension
 202797,Fanavari Serverpars Argham Gostar Company Ltd.,,
 202798,Andisheh Yavaran Tamadon Emrooz LLC,,
 202807,Navid Bakzadegan Tabrizi,,
-203000,Asiatech Data Transmission company,,
-203010,Rasaneh Mehr Vatan Co. PJS,,
+203000,Asiatech Data Transmission company,isp,Major ISP + IDC (Laser brand); main eyeball AS 43754; AS34636 always-reachable
+203010,Rasaneh Mehr Vatan Co. PJS,isp,Validation resolution: coded isp on reviewer judgment
 203014,"IRAN CHAMBER OF COMMERCE, INDUSTRIES, MINES and AGRICULTURE",,
 203024,Shakiba Teb Medical Technology LLC,,
 203026,Ports And Martime Organization,,
 203100,Iman Samaneh Sepehr LLC,,
 203102,Kerman University of Medical Sciences,,
-203162,Charisma Financial Information Processing PJSC,,
+203162,Charisma Financial Information Processing PJSC,financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
 203229,Nahayat Negar Brokerage Co LTD,,
 203247,Islamic Azad University,,
 203392,Ayandeh Gostar Bastak Co. (Private Joint Stock),,
 203433,Ariya SamaneSaz FahimNegar Pars Co. Ltd,,
-203558,Tose'h Fanavari Ertebabat Pasargad Arian Co. PJS,,
+203558,Tose'h Fanavari Ertebabat Pasargad Arian Co. PJS,isp,"FanapTelecom (Pasargad Bank group); FCP + datacenter mix; ownership financial-group, function connectivity"
 203616,Paya Kian Parham Co. (PJS),,
 203638,Noavaran Ertebatat Douran Company (PJS),,
 203684,Imen Sanat Novin Alighapoo Private Joint Stock Company,,
@@ -534,7 +534,7 @@ asn,org_name,type,notes
 203951,Toseh Samanehay-e Narmafzari-e Negin (Tosan) PJSC,,
 204001,Yazd University,,
 204079,Rahpoyan Pardazesh Gostar SAHRA (P.J.S),,
-204104,Giti Secure Cloud LLC,,
+204104,Giti Secure Cloud LLC,hosting,gscloud.ir server hosting; always-reachable
 204105,Paya Bastar Arina Co. Private J.S.,,
 204203,Atrin Information & Communications Technology Company PJS,,
 204213,Netmihan Communication Company Ltd,,
@@ -549,7 +549,7 @@ asn,org_name,type,notes
 204686,mobarakeh steel company,,
 204687,Saman Air Services (Private joint stock),,
 204721,Milad Mohammadi,,
-204781,BOURS KALAYE IRAN PJSC (Iran Mercantile Exchange),,
+204781,BOURS KALAYE IRAN PJSC (Iran Mercantile Exchange),financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
 204787,"FANAVARAN NOVIN BONYAN PASARGAD Co., (psj)",,
 204812,Pars Tamin Navid Company (Private Joint-Stock),,
 204813,Shahrekord University,,
@@ -557,10 +557,10 @@ asn,org_name,type,notes
 204865,Shabakieh Isfahan Co PJSC,,
 204904,University Of Art,,
 204955,Vista Samaneh ASA Company (PJS),,
-204981,Padisar Informatics PJSC,,
-204999,Rooyekhat Media Company Ltd,,
+204981,Padisar Informatics PJSC,other,"Generic informatics co, sector unclear; pattern-nominated only; D-019 extension"
+204999,Rooyekhat Media Company Ltd,media,Rooyekhat Media Co; D-019 extension
 205061,Cooperative Afra ertebatat-e-sabet-e Rasa Co,,
-205118,BOURS KALAYE IRAN PJSC (Iran Mercantile Exchange),,
+205118,BOURS KALAYE IRAN PJSC (Iran Mercantile Exchange),financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
 205134,Dorsa Expert System PJS,,
 205176,Arya Hamrah Samaneh PJS,,
 205207,Padiz Dadeh Resan PJSC,,
@@ -573,19 +573,19 @@ asn,org_name,type,notes
 205536,Tejarat Electronic Nojhan Pardazesh LLC,,
 205550,Tejarat Iranian Technology infrastructure PJSC,,
 205560,Agah Brokerage Company (P.J.S),,
-205585,Noyan Abr Arvan Co. ( Private Joint Stock),,
+205585,Noyan Abr Arvan Co. ( Private Joint Stock),hosting,ArvanCloud CDN; AS205585 always-reachable
 205588,The Islamic Propagation Office of Qom Seminary,,
-205622,Iran Health Insurance Organization,,
-205643,Central Insurance of Iran and Insurance Operations JSC,,
-205647,PARDIS FANVARI PARTAK LTD,,
+205622,Iran Health Insurance Organization,financial,State health insurer; state-body/financial boundary noted; D-019 extension
+205643,Central Insurance of Iran and Insurance Operations JSC,financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
+205647,PARDIS FANVARI PARTAK LTD,hosting,"Content/CDN, #15 AS cone, direct TIC upstream, transits Shatel - infrastructure/transit role, no transit type in taxonomy; always-reachable"
 205833,Al-mustafa International University,,
-205837,Sadad Electronic Payment Company P.J.S.,,
-205857,IRIB (Islamic Republic of Iran Broadcasting),,
+205837,Sadad Electronic Payment Company P.J.S.,financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
+205857,IRIB (Islamic Republic of Iran Broadcasting),media,State broadcaster; recoded government->media per D-019
 205883,Mapna Operation & Maintenace Company PJS,,
-205894,Export Development Bank of Iran - Public Joint Stock,,
+205894,Export Development Bank of Iran - Public Joint Stock,financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
 205899,Khadamat Ertebati Pishkhan Arvin Chenaran Co.LLC,,
 205965,Mojtaba Sohrabi,,
-206065,Tose'h Fanavari Ertebabat Pasargad Arian Co. PJS,,
+206065,Tose'h Fanavari Ertebabat Pasargad Arian Co. PJS,isp,"FanapTelecom (Pasargad Bank group); FCP + datacenter mix; ownership financial-group, function connectivity"
 206217,Pars Car International Communication Age PJSC,,
 206325,Shabakieh Isfahan Co PJSC,,
 206345,Ayandeh Afzayeh Karaneh Co PJS,,
@@ -601,8 +601,8 @@ asn,org_name,type,notes
 206840,"Favapayam Pars Co., Ltd",,
 206854,"Lesun communication furtherance engineers Co, (Ltd.)",,
 206862,Fereidoon Hedayatinia,,
-206929,Gostaresh Energy Pasargad Company (PJS),,
-206931,Dana Insurance PJSC,,
+206929,Gostaresh Energy Pasargad Company (PJS),energy,Pasargad group energy investment arm; D-019 extension
+206931,Dana Insurance PJSC,financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
 207125,Dadeh Gostar Parmis PJS Company,,
 207141,Ertebat Gostare Nakhl Jonoob Company PJSC,,
 207350,Arshia Asadi,,
@@ -612,32 +612,32 @@ asn,org_name,type,notes
 207680,Pars Databan Co,,
 207724,Web Dadeh Paydar Co (Ltd),,
 207796,Sourena Pardazesh Arya Software co. LLC,,
-207817,Saman Kish Electronic Payment Company,,
+207817,Saman Kish Electronic Payment Company,financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
 207897,Gostaresh Ertebat Azin Kia Company PJSC,,
 207920,Fereidoon Hedayatinia,,
 208005,Gostaresh Ertebat Azin Kia Company PJSC,,
 208048,Tejarat Pardaz Mahan Novin Co. Ltd,,
-208072,Eligasht Air Travel & Tourist Services Company Limited,,
+208072,Eligasht Air Travel & Tourist Services Company Limited,other,Eligasht travel agency; 'gas' inside brand name = pattern false positive; D-019 extension
 208124,Negin Narmafzar Asak Research and Information Cooperative Company,,
 208161,Pars Shabakeh Azarakhsh LLC,,
 208173,Maya Rayaneh Ravagh PJSC,,
 208231,Pardis-e BeinolmelalNetwork Support Company (P.J.S),,
-208246,Iran Fara Bourse Co. (Public Joint Stock),,
+208246,Iran Fara Bourse Co. (Public Joint Stock),financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
 208254,Tehran Didgah Company Ltd,,
 208264,HAMED SHIRVANI BAGHERI,,
 208268,Parvaz System Information Technology Company (Ltd),,
 208412,Social Security Organization,,
 208492,Ayandeh Afzayeh Karaneh Co PJS,,
-208493,Pasargad Bank PJSC,,
+208493,Pasargad Bank PJSC,financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
 208519,Sazman Sanjesh,,
 208555,Dade Pardazi Mobinhost Co LTD,,
 208560,SEPEHR NET IRANIAN PJSC,,
 208593,Tosee Fan Afzar Tosan PJSC,,
-208651,Shahr Bank PJSC,,
+208651,Shahr Bank PJSC,financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
 208675,Hamrah Pardaz Zarin PJS,,
 208703,Central Securities Depository and Funds Settlement Public JSC,,
 208742,Navaco information technology company (P.J.S.),,
-208828,Pishgaman Toseeh Ertebatat Company (Private Joint Stock),,
+208828,Pishgaman Toseeh Ertebatat Company (Private Joint Stock),isp,Major private ISP (Yazd); main AS 49100; 9 ASNs in group
 208896,Asr-e Danesh Afzar Company (Private J.S.),,
 208940,Ashraf Rahimi Khorasgani,,
 209079,Imam Khomeini Airport city company,,
@@ -652,18 +652,18 @@ asn,org_name,type,notes
 209814,Faragostar Shargh Communication Company PJS,,
 209836,Toesegaran Shabakeh Arseh Novin Ltd,,
 209849,Isfahan University of Technology,,
-209941,Saman Smart Financial Solutions JSC,,
+209941,Saman Smart Financial Solutions JSC,financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
 210064,Dimit Network Technology Company LLC,,
 210288,Aranik Communications Technology PJSC,,
 210392,Azarakhsh Ava-e Ahvaz Co,,
 210405,Vira Cloud DataCenter PJSC,,
 210460,Fatemeh Nekouei,,
-210470,Sarmayeh Bank Public Joint Stock,,
+210470,Sarmayeh Bank Public Joint Stock,financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
 210474,Parsway Shomal Company Ltd,,
 210487,Atrin Information & Communications Technology Company PJS,,
 210503,Mohammadhasan Jafarzadeh,,
 210547,Karno Tejarat Yasin Company PJS,,
-210548,Iran Information Technology Company PJSC,,
+210548,Iran Information Technology Company PJSC,state_telecom,Ex-DCI national data carrier; website tic.ir (gateway umbrella); AS12880 always-reachable
 210570,Rahkarhaye Abri Khalagh Company PJS,,
 210571,Razavi Information and communication technology company Plc,,
 210575,sayan Card Co,,
@@ -683,13 +683,13 @@ asn,org_name,type,notes
 210999,Tose'eh Karafarini va Technologyhaye Hoshmand NeginAsia Co PJS,,
 211021,Bazi Gostaran Derick,,
 211056,Amir Hosein Maaref,,
-211081,Tehran Stock Exchange Company (Public Joint Stock),,
+211081,Tehran Stock Exchange Company (Public Joint Stock),financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
 211162,Modiriat Saderat Ozhan Mashregh Pars Company PJS,,
 211228,Ertebat Gostar Amin Koosha Co.Ltd.,,
 211325,Abramad Technological Infrastructures Development Company PJS,,
 211408,Fanavaran Nicsepehr Zenderood Ltd.,,
 211419,Behsazan Mellat Company PJS,,
-211421,Asiatech Data Transmission company,,
+211421,Asiatech Data Transmission company,isp,Major ISP + IDC (Laser brand); main eyeball AS 43754; AS34636 always-reachable
 211491,Shahid Chamran University of Ahvaz,,
 211583,Tose Abzar Bazar Sarmayeh PJSC,,
 211592,Kian Iranian Smart Technologies Development Group (PJS),,
@@ -702,7 +702,7 @@ asn,org_name,type,notes
 211881,Tahlil Dadeh Novin Fadak LLC,,
 211903,Tose'e Vistaye Mohadelat Nadin Company,,
 211904,Asre Pardazeshe Ettelaate Amin Institute,,
-211990,Soroush Rasanheh Company Ltd,,
+211990,Soroush Rasanheh Company Ltd,isp,"SINET access provider, eyeball, Tehran"
 212004,Fanavaran Ideh Pardaz Imenaria,,
 212036,Parsway Shomal Company Ltd,,
 212040,FanAvaran Imen Aria Co. LLc,,
@@ -731,7 +731,7 @@ asn,org_name,type,notes
 212907,Hamkaran System Co. PJS,,
 212939,"Lamerd Information & Communication Technology Co.,ltd",,
 212978,Rayanmehr Danesh Sanj Company Ltd,,
-213017,Khalij Fars Ettela Resan LTD,,
+213017,Khalij Fars Ettela Resan LTD,isp,Regional (Persian Gulf); name-based
 213069,Maya Pardazesh Iranian LLC,,
 213222,Tida Data Processing Ltd,,
 213406,Arka Ertebat Amir Kabir LLC,,
@@ -743,16 +743,16 @@ asn,org_name,type,notes
 213644,Iranian Server Processing Limited Liability Company,,
 213645,Spad Abr Pardazesh Gilan PJSC,,
 213665,PARMIN CLOUD COMPUTING LLC,,
-213682,Charisma Financial Information Processing PJSC,,
+213682,Charisma Financial Information Processing PJSC,financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
 213727,Varesh Cloud Hosting Limited Liability Company,,
 213732,Peyman Ertebatat Pouya Company (Ltd),,
 213759,Tose'eh Lian Yas Ertebat PJSC,,
 213775,Shabake Tarh Madar Iranian Private Joint Stock Company,,
 213807,Fanavaran Mehr Vatan Tehran Server Group LLC,,
 213852,Tose'e Shabakeh Azad Ltd,,
-213872,Tosee Taavon Bank PJSC,,
+213872,Tosee Taavon Bank PJSC,financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
 213895,Ayande sazan pardazesh amn ltd.,,
-213916,Post Bank of Iran (Public Joint Stock),,
+213916,Post Bank of Iran (Public Joint Stock),financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
 213944,Mahdi Tasa,,
 213953,Mizban Dadeh Pardis .Ltd,,
 213969,Rayanesh Pardis Saman PJSC,,
@@ -788,7 +788,7 @@ asn,org_name,type,notes
 214586,Arvin Cloud Computing PJSC,,
 214680,Bu-Ali Sina University,,
 214735,Pishro Fannavaran-e Hooshmand Ravesh JSC,,
-214737,Iranian Offshore Oil Company,,
+214737,Iranian Offshore Oil Company,energy,Self-identifying name (oil/gas/petrochemical/power utility); D-019 extension
 214751,Rahpooyan Pardazesh Gostar Sahra CO. PJS,,
 214805,Kimiyagaran Padideh Modern Company LLC,,
 214824,Abr Gostar Arianet LLC,,
@@ -818,11 +818,11 @@ asn,org_name,type,notes
 215655,Ertebatat Dourbord Fars Engineering Company PJSC,,
 215671,Peimayesh Ertebat Oxin Co.(PJSC),,
 215679,Ideh Gozin Ertebatat e Romak Co. LTD,,
-215700,Mabna Financial Data Processing PJS,,
+215700,Mabna Financial Data Processing PJS,financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
 215708,Mobin Arvand Infrastructure Company LTD,,
 215746,Dadeh Gostaran Webideh Co. Ltd.,,
 215767,Mizban Pardazesh Pouyan LLC,,
-215779,Pasargad Electronic Payment Co.,,
+215779,Pasargad Electronic Payment Co.,financial,Self-identifying name (bank/insurance/bourse/payment); D-019 extension
 215850,PJSC Toseh Etemad Vosoogh Gostar,,
 215892,Pooyesh Axe Information and Communication Technology PJS,,
 215938,Mizban Pardazesh Nasle Farda PJSC,,

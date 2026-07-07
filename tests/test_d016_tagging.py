@@ -65,9 +65,11 @@ class TestSnapshotTagging:
 
 class TestConsolidateBackfillsCc:
     def test_pre_d016_snapshots_read_as_ir(self, tmp_path):
-        old = pd.DataFrame({"ts": [100], "prefix": ["5.22.200.0/24"], "visibility": [1.0]})
+        old = pd.DataFrame({"ts": [100], "prefix": ["5.22.200.0/24"], "visibility": [1.0],
+                            "family": [4], "peers_total": [20]})
         new = pd.DataFrame({"ts": [200], "prefix": ["78.170.1.0/24"],
-                            "visibility": [1.0], "cc": ["TR"]})
+                            "visibility": [1.0], "cc": ["TR"],
+                            "family": [4], "peers_total": [20]})
         old.to_parquet(tmp_path / "rib_100.parquet", index=False)
         new.to_parquet(tmp_path / "rib_200.parquet", index=False)
         out = tmp_path / "series.parquet"

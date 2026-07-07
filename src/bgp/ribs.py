@@ -285,22 +285,61 @@ def run_ribs(
         )
 
 
+def _stamp_fullfeed(df: pd.DataFrame) -> pd.DataFrame:
+    """D-020: stamp per-snapshot, per-family full-feed counts on every row.
+
+    peers_total is already the row's own-family count; ff_v4/ff_v6 make both
+    families' counts visible on every row so degraded cells are auditable
+    without a groupby.
+    """
+    for fam, col in ((4, "ff_v4"), (6, "ff_v6")):
+        totals = df.loc[df["family"] == fam, "peers_total"]
+        df[col] = int(totals.iloc[0]) if not totals.empty else 0
+    return df
+
+
 def consolidate(ribs_dir: Path, out_path: Path) -> None:
-    """Concatenate all snapshot parquets into visibility_timeseries.parquet."""
+    """Concatenate all snapshot parquets into visibility_timeseries.parquet.
+
+    Streams one snapshot per row group: holding the whole series in memory
+    OOMed the collection host at full-period scale (35M+ rows). Files sort
+    by name = by ts, and each snapshot is sorted by prefix, so the output
+    keeps the (ts, prefix) order of the old in-memory implementation.
+    """
+    import pyarrow as pa
+    import pyarrow.parquet as pq
+
     files = sorted(ribs_dir.glob("rib_*.parquet"))
     if not files:
         log.warning("no snapshot files in %s; nothing to consolidate", ribs_dir)
         return
-    df = pd.concat((pd.read_parquet(f) for f in files), ignore_index=True)
-    # Snapshots written before D-016 matched only the IR population, so a
-    # missing/NaN cc tag is IR by construction.
-    if "cc" not in df.columns:
-        df["cc"] = "IR"
-    else:
-        df["cc"] = df["cc"].fillna("IR")
-    df = df.sort_values(["ts", "prefix"]).reset_index(drop=True)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     tmp = out_path.with_suffix(".parquet.tmp")
-    df.to_parquet(tmp, index=False)
+    writer = None
+    n_rows = 0
+    try:
+        for f in files:
+            df = pd.read_parquet(f)
+            # Snapshots written before D-016 matched only the IR population,
+            # so a missing/NaN cc tag is IR by construction.
+            if "cc" not in df.columns:
+                df["cc"] = "IR"
+            else:
+                df["cc"] = df["cc"].fillna("IR")
+            df = _stamp_fullfeed(df).sort_values(["ts", "prefix"])
+            table = pa.Table.from_pandas(df.reset_index(drop=True), preserve_index=False)
+            if writer is None:
+                writer = pq.ParquetWriter(tmp, table.schema)
+            else:
+                table = table.select(writer.schema.names).cast(writer.schema)
+            writer.write_table(table)
+            n_rows += len(df)
+        if writer is not None:
+            writer.close()
+    except BaseException:
+        if writer is not None:
+            writer.close()
+        tmp.unlink(missing_ok=True)
+        raise
     tmp.replace(out_path)
-    log.info("visibility timeseries: %d rows -> %s", len(df), out_path)
+    log.info("visibility timeseries: %d rows -> %s", n_rows, out_path)

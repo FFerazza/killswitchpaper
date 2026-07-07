@@ -1,8 +1,8 @@
-"""D-012/D-017 direct fetch: URL construction and collector tagging."""
+"""D-012/D-017/D-021 direct fetch: URL construction and collector tagging."""
 
 import pytest
 
-from src.bgp.risfiles import CollectorElem, bview_url, routeviews_rib_url
+from src.bgp.risfiles import CollectorElem, bview_url, routeviews_rib_url, update_url
 
 BASE = "https://data.ris.ripe.net"
 RV_BASE = "https://archive.routeviews.org"
@@ -43,6 +43,24 @@ class TestBviewUrl:
     def test_off_grid_timestamp_rejected(self):
         with pytest.raises(ValueError, match="bview grid"):
             bview_url(BASE, "rrc00", 1772236800 + 3600)  # 01:00 UTC
+
+
+class TestUpdateUrl:
+    def test_5min_grid(self):
+        # 2025-06-11 21:15:00 UTC
+        assert update_url(BASE, "rrc00", 1749676500) == (
+            "https://data.ris.ripe.net/rrc00/2025.06/updates.20250611.2115.gz"
+        )
+
+    def test_month_rollover(self):
+        # 2026-03-01 00:00:00 UTC
+        assert update_url(BASE, "rrc12", 1772323200) == (
+            "https://data.ris.ripe.net/rrc12/2026.03/updates.20260301.0000.gz"
+        )
+
+    def test_off_grid_timestamp_rejected(self):
+        with pytest.raises(ValueError, match="RIS update grid"):
+            update_url(BASE, "rrc00", 1749676500 + 60)  # not on the 5-min grid
 
 
 class FakeElem:

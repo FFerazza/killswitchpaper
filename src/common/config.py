@@ -111,6 +111,10 @@ class Config:
         return float(self._phases["ioda"]["request_interval_seconds"])
 
     @property
+    def ioda_max_query_seconds(self) -> int:
+        return int(self._phases["ioda"]["max_query_days"]) * 86400
+
+    @property
     def ripestat_sample_asns(self) -> list[int]:
         return [int(a) for a in self._phases["ripestat_sample_asns"]]
 

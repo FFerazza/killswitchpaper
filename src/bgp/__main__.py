@@ -118,7 +118,11 @@ def main() -> None:
             windows = [cfg.window_by_name(name) for name in args.windows]
         else:
             windows = cfg.event_windows
-        run_events(cfg, DATA_DIR / "bgp" / "events", populations, windows)
+        run_events(
+            cfg, DATA_DIR / "bgp" / "events", populations, windows,
+            ris_base=cfg.source("ris_archive_base"),
+            ris_cache_dir=DATA_DIR / "raw" / "ris_updates",
+        )
 
 
 if __name__ == "__main__":

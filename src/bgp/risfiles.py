@@ -1,11 +1,14 @@
-"""D-012/D-017: direct fetch of RIB dumps, bypassing the BGPStream broker.
+"""D-012/D-017/D-021: direct fetch of RIB and update dumps, bypassing the
+BGPStream broker.
 
 The broker's RIS RIB metadata has gaps across the study period (see D-002),
-and its transfer path deterministically fails on some healthy RouteViews dumps
-(see D-017). The dump files themselves are complete on the archives and follow
+and its transfer path deterministically fails on some healthy RouteViews and
+RIS dumps (see D-017, and D-021 for the same failure on the update-stream
+path). The dump files themselves are complete on the archives and follow
 deterministic URL schemes:
 
     https://data.ris.ripe.net/{collector}/{YYYY.MM}/bview.{YYYYMMDD}.{HHMM}.gz
+    https://data.ris.ripe.net/{collector}/{YYYY.MM}/updates.{YYYYMMDD}.{HHMM}.gz
     https://archive.routeviews.org[/{collector}]/bgpdata/{YYYY.MM}/RIBS/rib.{YYYYMMDD}.{HHMM}.bz2
 
 (route-views2 is the project's original collector and lives at the archive
@@ -27,6 +30,7 @@ from src.common.log import get_logger
 log = get_logger("bgp.risfiles")
 
 _BVIEW_INTERVAL_S = 8 * 3600  # RIS dumps bviews at 00:00, 08:00, 16:00 UTC
+_UPDATE_INTERVAL_S = 300  # RIS dumps updates every 5 minutes
 
 
 class CollectorElem:
@@ -93,6 +97,45 @@ def read_rib_file(path: Path, collector: str) -> Iterator[Any]:
 
     stream = pybgpstream.BGPStream(data_interface="singlefile")
     stream.set_data_interface_option("singlefile", "rib-file", str(path))
+    for rec in stream.records():
+        if rec.status in _FATAL_STATUSES:
+            raise StreamTransportError(
+                f"collector {collector} file {path.name}: record status {rec.status!r} "
+                "- dump incomplete/unparseable; aborting per D-002"
+            )
+        for elem in rec:
+            yield CollectorElem(elem, collector)
+
+
+def update_url(base: str, collector: str, ts: int) -> str:
+    """URL of the RIS update dump covering [ts, ts+300) (must lie on the 5-min grid)."""
+    if ts % _UPDATE_INTERVAL_S:
+        raise ValueError(f"ts {ts} is not on the RIS update grid (5-min UTC)")
+    dt = datetime.fromtimestamp(ts, tz=timezone.utc)
+    return f"{base}/{collector}/{dt:%Y.%m}/updates.{dt:%Y%m%d}.{dt:%H%M}.gz"
+
+
+def fetch_update(base: str, collector: str, ts: int, cache_dir: Path) -> Path:
+    """Download (or reuse cached) RIS update file; returns the local path."""
+    url = update_url(base, collector, ts)
+    dest = cache_dir / collector / url.rsplit("/", 1)[-1]
+    return download(url, dest)
+
+
+def read_update_file(path: Path, collector: str) -> Iterator[Any]:
+    """Yield elems from a local MRT update dump, with `.collector` set.
+
+    Raises StreamTransportError on corrupted records (D-002 rule a), exactly
+    like the broker-backed stream. D-021: this is the direct-fetch path for
+    update (not RIB) dumps, added after the broker was found to deterministically
+    corrupt specific healthy rrc00 update files in transit.
+    """
+    import pybgpstream  # lazy: needs the C library, only guaranteed in Docker
+
+    from src.bgp.stream import _FATAL_STATUSES, StreamTransportError
+
+    stream = pybgpstream.BGPStream(data_interface="singlefile")
+    stream.set_data_interface_option("singlefile", "upd-file", str(path))
     for rec in stream.records():
         if rec.status in _FATAL_STATUSES:
             raise StreamTransportError(

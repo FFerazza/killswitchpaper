@@ -44,7 +44,7 @@ Entry template:
 ---
 
 ## D-001 — Phase boundary dates
-- Status: OPEN
+- Status: SUPERSEDED by D-025
 - Question: Exact UTC timestamps for the P0/P1, P1/P2, P3/P4 boundaries. Press-reported dates
   (late Dec 2025; 28 Feb 2026; 25–26 May 2026) are priors, not answers.
 - Decision: —
@@ -113,7 +113,7 @@ Entry template:
 - Affects: every visibility number; H1–H4.
 
 ## D-003 — More-specifics accounting rule
-- Status: OPEN
+- Status: SUPERSEDED by D-022
 - Question: How visibility of a delegated block is computed when announcements are more- or
   less-specific than the delegation (critical in P4, where restoration may occur via /24s
   inside delegated /16s).
@@ -144,7 +144,7 @@ Entry template:
 - Affects: H1; sample size reported in methods.
 
 ## D-006 — Restoration event definition (H3)
-- Status: OPEN
+- Status: SUPERSEDED by D-023
 - Question: The event marking a prefix "restored": first timestamp after the P4 boundary where
   visibility re-crosses X% of that prefix's own P0 baseline.
 - Decision: —
@@ -175,15 +175,84 @@ Entry template:
 - Affects: validity of every anomaly claim.
 
 ## D-009 — Flap definition (H4 "cleanliness")
-- Status: OPEN
+- Status: DECIDED (2026-07-07, FF signed)
 - Question: What counts as a flap during an onset window: a withdrawal followed by
-  re-announcement of the same prefix within T minutes, from the same origin. Value of T.
-- Decision: —
-- Implemented in: `src/analysis/` event metrics
-- Affects: H4 comparison table.
+  re-announcement of the same prefix within T seconds, from the same origin. Value of T.
+- Method: computed the actual withdraw-then-reannounce gap for every BGP
+  peer SESSION (prefix, origin asn, peer_asn - the level flapping is
+  conventionally defined at, not a peer-agnostic "any withdraw anywhere
+  followed by any announce anywhere," which would confuse ordinary
+  cross-peer propagation-lag differences for a flap) across all 4 completed
+  event windows (nov2019, jun2025, feb2026_onset, may2026_restoration;
+  jan2026_event pending). 12,772,856 withdraw->reannounce gaps total.
+  `src/analysis/flap_gaps.py::withdraw_reannounce_gaps`, 6 tests.
+- Data shape (honest finding, not a clean D-013-style bimodality valley -
+  this is a continuous, heavy-tailed, multi-modal gap distribution, not a
+  bounded ratio, so that method doesn't transfer cleanly):
+  - 25.1% of gaps are 0s (same-instant withdraw+reannounce - almost
+    certainly a single sub-second update burst, not two real events).
+  - A sharp initial spike 0-10s (39.3% of all gaps combined), decaying
+    through 10-30s, THEN RISING AGAIN to a local secondary peak at 30-60s
+    (8.3%) - consistent with (not verified against a citation - this is an
+    observation, not an imported fact) typical BGP MRAI (minimum route
+    advertisement interval) timers, commonly ~30s.
+  - A THIRD, smaller local peak at 600-1200s / 10-20min (8.6% combined) -
+    consistent with (same caveat) classic BGP route-flap-damping
+    suppress/reuse timer conventions.
+  - Pattern holds across all 4 windows individually (nov2019 has the
+    largest 10-20min bump at 16.1%, plausibly reflecting less-provisioned
+    2019-era infrastructure/longer reconvergence; the other 3 windows show
+    2-7%): share of gaps <=60s ranges 52.8%-70.0% per window, median gap
+    12-37s per window.
+  - Percentiles (all windows combined): p25=0s, p50=29s, p75=781s (13min),
+    p90=5838s (97min), p95=62209s (17.3h), p99=401108s (4.6 days).
+- Decision: **T = 60 seconds** (FF signed off in chat, 2026-07-07). Rationale:
+  60s sits right at the boundary between the sharp initial 0-60s decay
+  (almost certainly single-update-burst / sub-minute protocol-level
+  retransmission artifacts, not meaningful reannouncement dynamics) and the
+  distribution's later, much more gradual/multi-modal structure - it is the
+  most defensible single cut point given the data doesn't offer a clean
+  valley, not a value picked for convenience or to favor either hypothesis.
+- **Robustness result (2026-07-07):** re-ran H4 (`event_speed`) with
+  T in {none/unfiltered, 30s, 60s, 300s} across all 4 completed event
+  windows. D-024's primary cross-window metric, `duration_p5_p95_s`, is
+  essentially unchanged across every threshold (all within ~2%;
+  may2026_restoration identical to the second at 58,420s in all four runs;
+  feb2026_onset 151,364s unfiltered vs 151,288s at every filtered level).
+  `n_prefixes_withdrawn` moves only marginally (largest change
+  feb2026_onset 6983->6415, ~8%, then flat across 30/60/300s). The
+  cross-window qualitative comparison this decision exists to protect is
+  robust to the exact choice of T within the tested range. One real
+  exception, flagged rather than smoothed over: `duration_p50_s` for
+  may2026_restoration shifts materially with filtering (41,505s unfiltered
+  -> 60,601s at T=60s/300s, ~46% later) - flap withdrawals were
+  concentrated early in that window's distribution, so removing them
+  shifts the median onset timing notably even though the p5-p95 range
+  itself doesn't move. `duration_p50_s` is a secondary/contextual metric,
+  not D-024's primary comparator, but any prose citing it for
+  may2026_restoration specifically should use the T=60s (post-flap-filter)
+  value, not the unfiltered one.
+- Alternatives considered: a bimodality-valley method matching D-013
+  (rejected for this specific variable - gap-time is an unbounded,
+  heavy-tailed continuous quantity, not a bounded ratio/fraction, and the
+  actual histogram does not show one clean valley, only a decaying spike
+  followed by two smaller secondary bumps); a literature-standard flap-
+  damping constant (not used - would require a verified citation before
+  going in the paper per CLAUDE.md's citation rule, and no such citation
+  has been sourced/verified yet; the BGP-timer correspondences noted above
+  are offered as plausible mechanism, not as an imported fact).
+- Implemented in: `src/analysis/flap_gaps.py` (`withdraw_reannounce_gaps`,
+  `flap_withdrawal_mask`, `drop_flap_withdrawals`); wired into
+  `src/analysis/joins.py::event_speed` (`flap_threshold_s` param, default
+  None preserves pre-D-009 behavior) via `config/phases.yaml`
+  (`analysis.flap_threshold_s: 60`, `analysis.flap_threshold_robustness_s:
+  [30, 300]`); `src/analysis/__main__.py` passes the config value through.
+  16 tests total (`tests/test_flap_gaps.py`, `tests/test_joins.py`).
+- Affects: H4 comparison table (`event_speed.parquet`, now flap-filtered
+  by default in the real pipeline run).
 
 ## D-010 — Onset duration metric (H4)
-- Status: OPEN
+- Status: SUPERSEDED by D-024
 - Question: "Time from first to last withdrawal" is sensitive to stragglers; decide between
   full range and an interpercentile range (e.g. 5th–95th percentile of withdrawal times
   across the affected population), applied identically to 2019, June 2025, and Feb 2026.
@@ -242,6 +311,19 @@ Entry template:
   cross-regional contrast needed for the H3 selectivity check).
 - Implemented in: `src/bgp/` (direct-fetch data source), `config/phases.yaml`
   (backfill ranges), same guards as D-002.
+- **Robustness exhibit BUILT (2026-07-07)**: [[paper-two-series-justification]]
+  (FF-approved methods argument) called for one figure demonstrating, not
+  just asserting, that visibility is bimodal enough for a threshold choice
+  to be insensitive to which series is used. `src/analysis/series_comparison.py`
+  (`visibility_distribution_comparison`, `bimodality_summary`) compares the
+  two series at their shared, non-degraded snapshots (never merged).
+  Result: primary series 98.56% of values near 1.0, 0.83% near 0.0, only
+  0.62% in the ambiguous [0.1, 0.9] middle; RIS-secondary 98.37%/1.05%/0.59%
+  respectively - nearly identical shape despite one series having ~118
+  observers and the other ~380. `outputs/visibility_bimodality_comparison.parquet`
+  (4,786,807 rows, raw values for the histogram figure) +
+  `outputs/visibility_bimodality_summary.parquet` (the numbers above). 4 tests
+  (`tests/test_series_comparison.py`).
 - Affects: H2, H3 (secondary analyses); primary series unaffected.
 
 ## D-013 — Resolution of D-004 (state thresholds) and D-005 (probing baseline)
@@ -503,3 +585,373 @@ Entry template:
   and without extension rows; blind-validation sample redrawn over the
   extended proposal before FF codes it.
 - Affects: D-018 scope and taxonomy; H3 sector-level claims.
+
+## D-020 — Minimum peer-diversity rule for degraded primary RIB snapshots
+- Status: DECIDED (2026-07-06, FF signed)
+- Question: When a snapshot's full-feed peer count is sharply reduced by a short
+  upstream archive dump, do its visibility estimates enter analysis, and under
+  what rule? (D-002 makes the denominator dynamic, so such estimates are
+  unbiased but high-variance; D-002 does not set a variance floor.)
+- Motivating incident (2026-07-06, full-period run QC): 3 of 1,278 primary
+  snapshots fail the ribs_health drift check (>15% from series median), all
+  traced to short route-views.linx archive dumps (route-views2 stable at 23/0
+  throughout; archive Content-Length for rib.20250616.0000 = 20.9MB vs ~150MB
+  for neighbors). Regeneration reproduces them byte-identically — the loss is
+  upstream at the collector, not in our transport. Affected (UTC):
+  2025-05-27T00:00 (ff 49/22), 2025-06-06T00:00 (ff 47/20),
+  2025-06-16T00:00 (ff 26/3). The last falls
+  INSIDE the jun2025 war-blackout window, so silent inclusion or silent
+  exclusion both risk shaping an H-relevant curve.
+- Proposed decision:
+  1. Per-snapshot, per-family full-feed counts (from the collector_fullfeed
+     audit column) are carried into the consolidated visibility series at
+     consolidation time (columns ff_v4, ff_v6).
+  2. A (snapshot, address family) cell is DEGRADED if its full-feed count is
+     below an absolute floor of 15 peers (config: analysis.min_fullfeed_peers).
+     Degraded cells are excluded from visibility-based analyses for that family
+     only; the other family stays in. Under this rule exactly one cell is
+     excluded today: 2025-06-16T00:00 IPv6 (3 peers). The 8h-adjacent snapshots
+     on both sides are healthy, so exclusion creates a one-bin gap, never a
+     boundary shift.
+  3. Rationale for 15: worst-case binomial s.e. of a visibility fraction at
+     n=15 is ~0.13, small relative to the 0.5 announced-threshold band
+     (D-013); at n=3 it is ~0.29 — indistinguishable from signal. The floor is
+     deliberately absolute, not median-relative: a relative rule would flag
+     healthy early-series snapshots if peering grows, and 26/51 sits exactly
+     at a 50%-of-median knife edge (0.51) — a rule that flips on one peer is
+     not robust.
+  4. Alternatives considered and rejected: substituting the RIS secondary
+     series at affected timestamps (violates D-012's never-mix rule);
+     dropping the affected snapshots wholesale (discards a usable n=26 IPv4
+     estimate inside the jun2025 window).
+- Robustness pre-committed: (a) affected analyses rerun with degraded cells
+  included — results must not flip; (b) degraded-cell estimates compared
+  against linear interpolation of the adjacent healthy snapshots, reported if
+  divergent; (c) floor swept over {10, 15, 20, 25} — the set of excluded cells
+  and all downstream conclusions reported per value; (d) note that jun2025
+  event-timing metrics (H4) come from update streams, not RIBs, and are
+  untouched by this rule.
+- Affects: consolidation schema (ff_v4/ff_v6 columns), analysis.min_fullfeed_peers
+  in config, every visibility-based analysis; complements D-002.
+
+## D-021 — Amendment to D-017: direct archive fetch extended to update streams
+- Status: DECIDED (2026-07-06, FF signed)
+- Question: D-017 point 2 scoped events/update streams to stay broker-only,
+  on the stated grounds that "it has not failed there." That premise is now
+  false: does direct-archive fetch (already D-017's fix for RIB dumps) need
+  to extend to update streams too, and if so, how?
+- Motivating incident (2026-07-06, jun2025 event window on EC2): the 15-day
+  jun2025 events run hit `StreamTransportError` (collector rrc00,
+  corrupted-record) 4 times across the full exponential retry ladder
+  (60/120/240/480s, spanning ~3h wall-clock at different times of day), every
+  attempt failing at the identical stream position (2025-06-11T21:14:21Z,
+  after exactly 10,000,000 events) with the identical libcurl error
+  ("Failure when receiving data from the peer (56)" / truncated gzip). I
+  fetched the three candidate rrc00 update dumps directly from
+  data.ris.ripe.net for that 15-minute span
+  (updates.20250611.{2110,2115,2120}.gz, 12.8/10.5/17.1 MB) and verified all
+  three with `gzip -t`: intact, correct size, no corruption. This is the same
+  fingerprint as D-017's root cause (broker/wandio deterministically mangles
+  specific healthy files in transit) — it just hadn't been observed on the
+  updates path before because the study period's event windows are short and
+  few, until jun2025 (15 days, the longest).
+- Proposed decision: extend the D-012/D-017 direct-fetch mechanism to update
+  streams. RIS update dumps follow a deterministic URL scheme
+  (`data.ris.ripe.net/{collector}/{YYYY.MM}/updates.{YYYYMMDD}.{HHMM}.gz`,
+  5-minute cadence) exactly analogous to the bview scheme already implemented
+  in `src/bgp/risfiles.py`. Concretely: enumerate the update-file grid for
+  the requested window per collector, fetch each directly (broker fallback
+  on a missing/failed direct fetch, same as D-017 rule 1), replay through the
+  singlefile interface. Scope: RIS collectors only (rrc00, rrc12 -
+  `config.ris_backfill_collectors`, reused from D-012). RouteViews collectors
+  (route-views2, route-views.linx) stay on the broker for updates, unchanged
+  from D-017 - they have not failed there, and the observed incident is
+  RIS-specific. Per-collector file sequences are fetched and replayed in
+  chronological order but collectors are not globally merge-sorted against
+  each other; this is safe because `process_window`'s withdrawal attribution
+  keys are (peer_address, peer_asn, prefix), which do not cross collectors,
+  and event_speed (H4) was independently verified order-independent.
+  Falls back to the pre-D-021 broker-only path (all 4 collectors, full retry
+  ladder) on any direct-fetch failure, mirroring D-017 rule 1.
+- Robustness: same exact-equality standard as D-017, deferred to a live check
+  rather than a synthetic one - the jun2025 window itself is the validation:
+  if the direct-fetch rerun completes, its event counts/timing are compared
+  against the two already-successful broker-fetched windows (nov2019,
+  may2026_restoration) for plausibility (comparable per-day event rates, no
+  A/W schema drift), since jun2025 has no independent broker-fetched ground
+  truth of its own - that is the whole reason it needed this fix.
+- Affects: jun2025 events window (was blocked, ladder exhausted); any future
+  event window that hits the same RIS broker-side file corruption.
+- Implemented in: `src/bgp/risfiles.py` (`update_url`, `fetch_update`,
+  `read_update_file`), `src/common/timeutil.py` (`update_times`, 5-min grid),
+  `src/bgp/events.py` (`process_window_direct`, `_iter_direct_ris`, direct-
+  then-broker-fallback wiring in `run_events`), `src/bgp/__main__.py` (passes
+  `ris_archive_base` and a dedicated cache dir). 102 tests green.
+
+## D-022 — Resolution of D-003: more-specifics accounting rule
+- Status: DECIDED (2026-07-06, FF signed)
+- Question: How is visibility of a delegated block computed when observed
+  announcements are more- or less-specific than the delegation (critical in
+  P4, where restoration may occur via /24s inside delegated /16s)?
+- Decision: primary metric is address-space-weighted coverage: for a
+  delegated block, visibility = (sum of address space of covered observed
+  announcements that are "seen," i.e. carried by a full-feed peer, weighted
+  by each covered chunk's own size) / (total address space of the delegated
+  block). Robustness companion: max-visibility-over-any-covering-or-covered-
+  announcement ("is any of it back") reported alongside, never replacing the
+  primary metric.
+- Rationale: address-space-weighted coverage is the only one of the two
+  candidates that can distinguish "the whole /16 came back" from "a single
+  /24 inside it came back" - exactly the P4 restoration question this entry
+  exists for. Max-visibility answers a real but coarser question ("has
+  anything at all reappeared") and is kept as a companion metric so a reader
+  can see both without re-deriving one from the other.
+- Alternatives considered: max-visibility as primary (rejected - too coarse
+  for P4, would read a single restored /24 identically to a fully restored
+  /16); a strict announcement-count (not space-weighted) share (rejected -
+  weights a /24 and a /16 equally, which misstates how much address space
+  is actually reachable).
+- Robustness owed (pre-committed, not yet run): recompute H3/H1 P4 numbers
+  under both metrics and report both; spot-check the always-reachable cohort
+  (state gateway + CDN/hosting ASNs, see [[asn-classification-logic]]-era
+  H3 leads) for cases where the two metrics disagree, since a disagreement
+  there is the most H3-relevant failure mode.
+- Implementation status: BUILT (2026-07-07). `src/common/rollup.py::rollup_visibility`
+  computes address-space-weighted visibility per delegated block, plus the
+  `visibility_max` companion. Found and fixed a real correctness bug during
+  implementation: real routing tables commonly announce a block AND
+  more-specifics inside it simultaneously (deaggregation for traffic
+  engineering) - naively summing size(p)*visibility(p) over every observed
+  prefix covered by a block double-counts that overlapping space (verified:
+  some blocks' P0 baseline came out above 1.0, impossible for a fraction).
+  Fixed via longest-prefix-match resolution (an address covered by several
+  nested announcements is attributed only to the most specific one) -
+  `src/common/rollup.py::_seen_space`, regression-tested against the actual
+  overlapping case found in the data. All H1/H3 numbers computed before
+  2026-07-07 used per-observed-prefix visibility, not this rule, per the
+  note below (unaffected qualitatively; P4/H3 restoration numbers now use
+  this rollup as of D-023's implementation).
+- Implemented in: `src/common/rollup.py` (`rollup_visibility`, `map_to_blocks`,
+  `_seen_space`); tests in `tests/test_rollup.py`.
+- Affects: H1 state derivation (marginally, mostly stable), H3 restoration
+  metrics (materially, this is what P4 completeness claims need).
+
+## D-023 — Resolution of D-006: restoration event definition (H3)
+- Status: DECIDED (2026-07-06, FF signed)
+- Question: What event marks a prefix "restored"?
+- Decision: the restoration timestamp for a prefix is the first ts after the
+  P4 boundary at which its visibility (per D-022's address-space-weighted
+  metric once built; per-observed-prefix visibility until then) re-crosses
+  50% of that prefix's own P0 baseline mean. 25% and 80% are pre-committed
+  robustness thresholds, run and reported alongside, not substituted in.
+  Steady-state visibility (mean over the final study month, relative to P0)
+  is reported as a separate completeness metric - timing (how fast) and
+  completeness (how much) are different H3 questions and must not be
+  collapsed into one number.
+- Rationale: 50% is the natural analogue of D-013's announced/dark threshold
+  applied to a single prefix's own history rather than a population-wide
+  probing baseline - consistent methodology across the paper rather than an
+  independently chosen constant. The 25/80 bracket tests whether the H3
+  restoration-speed ranking across ASN types is sensitive to exactly where
+  the line is drawn.
+- Alternatives considered: an absolute visibility floor (e.g. 0.5 flat,
+  rejected - some prefixes never ran near 1.0 pre-shutdown, so a flat floor
+  would misclassify low-baseline prefixes as unrestored even at full
+  recovery); first-touch (any nonzero visibility) as the restoration event
+  (rejected - too sensitive to single-peer flap noise, would read as
+  "restored" on a single stray announcement).
+- Implementation status: BUILT (2026-07-07). `src/analysis/joins.py::restoration_events`
+  computes the per-block restoration timestamp (25/50/80% thresholds) and
+  steady-state completeness on the primary 8h-grid series;
+  `restoration_by_type` aggregates by ASN classification type.
+  Found on real data: ~97% of blocks cross the 50% threshold at the very
+  first primary-series snapshot after the P4 boundary - the 8h grid cannot
+  resolve where inside that window the true crossing happened, so
+  `median_delay_s` came out identical across every ASN type (a resolution
+  floor, not evidence of simultaneous restoration). Added a companion pair,
+  `fine_restoration_order` + `restoration_order_by_type`, using the
+  `may2026_restoration` event window's raw BGP-update timestamps instead of
+  the 8h grid - first reannouncement per block after the P4 boundary. This
+  resolved real by-type differences (median 1.5min for mobile/government to
+  47min for unclassified ASNs). Along the way, found AS39501 (Parvaresh
+  Dadeha) was classified `hosting` but behaved like the general population
+  (slow, uniform) rather than the fast/always-reachable CDN cohort;
+  bgp.tools independently confirms it as an eyeball/access-ISP network
+  (#45 Iran eyeballs), not hosting - FF approved reclassifying it to `isp`
+  in `data/population/ir_asn_classification.csv` (2026-07-07), which moved
+  hosting's median from 78min (an artifact of this one ASN, 47% of the
+  category's blocks) to 14.9min, in line with the other CDN/hosting orgs.
+- Implemented in: `src/analysis/joins.py` (`restoration_events`,
+  `restoration_by_type`, `fine_restoration_order`, `restoration_order_by_type`);
+  tests in `tests/test_restoration.py`, `tests/test_joins.py`.
+- Affects: H3 (centerpiece restoration figure).
+
+## D-024 — Resolution of D-010: onset/event duration metric (H4)
+- Status: DECIDED (2026-07-06, FF signed)
+- Question: "Time from first to last withdrawal" is sensitive to stragglers;
+  decide between full range and an interpercentile range, applied
+  identically to nov2019, jun2025, feb2026_onset, and may2026_restoration.
+- Decision: primary metric is the 5th-95th percentile interpercentile range
+  of per-prefix first-withdrawal times (i.e. t_p95 - t_p5, not t_max - t_min).
+  Full range (t_last - t_first) is reported alongside as a secondary/context
+  metric, never used alone to compare windows.
+- Rationale: interpercentile range is robust to the exact long-tail behavior
+  that makes cross-window comparison misleading today - e.g. nov2019's full
+  range (594,787s) is dominated by stragglers out past its own p99
+  (484,468s), while its bulk (p50 17,340s) is actually the fastest of the
+  three completed windows. A single straggler prefix can otherwise swing the
+  full-range number by days; 5th-95th trims exactly that without hiding it
+  (full range still reported for transparency).
+- Alternatives considered: full range only (rejected - exactly the metric
+  whose sensitivity to stragglers motivated this entry); p50/p90/p99 marginal
+  percentiles only, no range (rejected - a set of quantile points isn't a
+  single comparable "how long did onset take" number the way a range is;
+  keep both forms since they answer different questions).
+- Implementation status: BUILT (2026-07-06). `src/analysis/joins.py::event_speed`
+  emits `duration_p5_p95_s` (= t_p95 - t_p5, the metric this entry decides on)
+  alongside the pre-existing `duration_s` (full range) and `duration_p50_s`/
+  `duration_p90_s`/`duration_p99_s` (elapsed time from t_first to each
+  percentile - a different question, "time to reach the Nth percentile from
+  the start," kept as secondary/context stats, not a substitute for the range).
+- Implemented in: `src/analysis/joins.py::event_speed`.
+- Affects: H4 comparison table (all 4 windows once jun2025 lands).
+
+## D-025 — Resolution of D-001: phase boundary dates, derived from data
+- Status: DECIDED (2026-07-06, FF signed)
+- Question: exact UTC timestamps for the P0/P1, P1/P2, P3/P4 boundaries
+  (D-001), derived from the country-level IODA + aggregate BGP figure per
+  D-001's own rationale, before any hypothesis-specific analysis is
+  finalized on them.
+- Method: reused D-013's already-decided probing_dark_ratio (0.2x own
+  baseline) - deliberately not a new threshold invented for this purpose -
+  applied to the country-level `ping-slash24` signal (native 600s
+  resolution, zero coverage gaps per the 2026-07-06 IODA QC) against its
+  fixed P0 baseline (`data/ioda/baseline/country_IR.parquet`, same window as
+  D-013). Ran a **blind full-study-period scan** for sustained (>=2 day)
+  excursions below threshold, rather than only searching near the
+  press-reported prior dates, to avoid finding what the priors expected to
+  find. The scan surfaced exactly three excursions:
+  1. 2025-06-19 -> 2025-06-21 (2 days) - matches the already-known June 2025
+     war-blackout reference event inside P0 (sanity-checks the method
+     against known history).
+  2. **2026-01-08T16:50Z -> 2026-01-27T00:10Z (18 days)** - a previously
+     uncharacterized event. NOT in the current phase model at all (currently
+     Dec 20 2025 - Feb 27 2026 is one undifferentiated "throttling" phase).
+  3. 2026-03-01 -> 2026-05-26 (86 days) - the known hard-blackout plateau.
+- Motivating finding (full detail): the current P1 window (2025-12-20 ->
+  2026-02-27, "throttling / selective blocking") shows NO detectable
+  transition in either the country-level probing signal or the per-ASN
+  `announced_but_dark` share anywhere near 2025-12-20 - both stay flat at
+  the P0 noise floor (country ratio ~0.99-1.00; per-ASN dark share
+  ~0.04-0.16%) through all of December. Instead there is a sharp, isolated,
+  control-checked event entirely inside the nominal P1 window:
+  - Onset: ratio falls from ~0.92 to ~0.04 in ~30-50 minutes starting
+    2026-01-08T16:30Z (country signal); per-ASN dark share simultaneously
+    jumps from ~0.1% to ~14.5%. 123 distinct ASNs register dark at some
+    point across the 18 days, including TCI (AS58224), TIC (AS49666),
+    MCI/Hamrah-e-Aval (AS197207), Irancell (AS44244), and Rightel
+    (AS57218) - i.e. essentially every major carrier, not a narrow slice.
+  - Withdrawn share does NOT move during this window (stays ~19-23%
+    throughout) - this is a filtering-type event like the main blackout,
+    not a withdrawal event.
+  - Offset: sharp initial recovery 2026-01-26T23:50Z -> 2026-01-27T01:00Z
+    (ratio 0.03 -> ~0.37), then a SLOWER multi-day tail back to full
+    baseline by ~Jan 29-31 - recovery is not as sharp as onset.
+  - **D-008 gate: 0% dark share in all 30 control ASNs (TR/AE/PK) across
+    the entire Jan 8-31 window** - not a measurement artifact.
+  - Bonus refinement en route: native-resolution re-check of the already-
+    known Feb 28 onset finds the country probing signal crossing dark at
+    **2026-02-28T07:50Z**, about 1h12m BEFORE the documented 09:02 UTC BGP
+    withdrawal wave. The [[killswitch-h1-finding]] memory had flagged
+    "dark-before-withdrawal sequencing" as a LOW-confidence lead because
+    8h RIB-snapshot bins were too coarse to time it; native 600s IODA
+    resolution now times it directly. Tier: observed (the sequencing
+    itself); any claim about *why* stays at consistent-with-reporting at
+    most (D-011).
+- Proposed decision (values, pending sign-off):
+  - P0: 2025-05-01T00:00:00Z -> **2026-01-08T16:50:00Z** (moved from
+    2025-12-20; no data-supported reason to end P0 at the press-reported
+    date - the country signal is indistinguishable from baseline for the
+    entire Dec 20 - Jan 8 span. Explicitly note in methods: no measurable
+    transition was found at the press-reported "late Dec 2025" date in any
+    signal checked; if throttling began then, it did not register as a
+    change in active-probing response counts or per-ASN reachability at
+    the aggregate levels available to this study.)
+  - P1: **2026-01-08T16:50:00Z -> 2026-02-28T07:50:00Z** (moved from
+    2025-12-20 -> 2026-02-27; now spans exactly the January dark event
+    (Jan 8-27) plus the ~32-day return-to-baseline interim before the hard
+    onset (Jan 27 - Feb 28). This window is internally heterogeneous by
+    construction - phase-level means over it will understate the January
+    event and should be reported with the event called out separately, not
+    folded into one P1 average.)
+  - P2: **2026-02-28T07:50:00Z** -> 2026-03-01T00:00:00Z (start moved
+    ~7h50m later than current 2026-02-28T00:00:00Z, to the actual measured
+    onset instant. This also closes a pre-existing 24h gap in the phase
+    model - P1 previously ended 2026-02-27T00:00:00Z and P2 previously
+    started 2026-02-28T00:00:00Z, leaving Feb 27 uncovered by any phase;
+    P1 now runs right up to the same instant P2 starts. End unchanged -
+    D-001 didn't flag P2/P3 as needing verification and the blind scan's
+    own sustained-dark run (2026-03-01 onward) corroborates it).
+  - P3: 2026-03-01T00:00:00Z -> **2026-05-26T12:10:00Z** (end moved from
+    2026-05-25, ~1.5 days later, to the measured recovery crossing).
+  - P4: **2026-05-26T12:10:00Z** -> 2026-07-01T00:00:00Z (study_period end,
+    unchanged).
+- Robustness owed (pre-committed 2026-07-06, RUN 2026-07-07 - see result
+  below): ±24h sensitivity sweep on the P1/P2 boundary specifically, per
+  D-001's original robustness note, since H4's onset-duration metric
+  (D-024) is what's most sensitive to it; rerun the full-period P0-P4
+  breakdown (H1/H2/H3, 2026-07-06 run) under these boundaries and report
+  whether the qualitative filtering-dominant shape survives (expected: yes,
+  since the shape was already driven by P2/P3 vs P0, and P0/P2/P3 barely
+  move; P1's own numbers will change materially since its span and
+  composition both change).
+- **Robustness result (2026-07-07):** the flat ±24h figure was inherited
+  from D-001's pre-D-025 robustness note (written when boundaries were
+  coarse press-reported dates) and was never revalidated against P2's own
+  width once D-025 narrowed it to 16.2h - a ±24h shift exceeds that width
+  entirely. Run as specified (`src/analysis/phase_breakdown.py::boundary_sensitivity_sweep`,
+  `outputs/p1_p2_boundary_sensitivity.csv`): at -24h, P2's dark_share drops
+  from 13.79% to 5.59% (more than halved); at +24h, the shifted boundary
+  lands past P2's own end (2026-03-01T00:00) and the phase is empty
+  (undefined, not zero). Neither result means the finding is fragile - it
+  means the primary series' 8h snapshot grid gives P2 only 2 sample
+  instants (2026-02-28 08:00 and 16:00, the boundary sitting 10 minutes
+  before the first), so ANY shift either changes nothing (doesn't cross a
+  snapshot) or swaps in a different regime's data wholesale (P1's flat
+  pre-transition baseline, >7h50m back; empty space, >16.2h forward) - a
+  step function, not a smooth quantity a continuous +/-Xh sweep can
+  meaningfully probe. The informative check is the raw snapshot trajectory
+  (`snapshot_trajectory`, `outputs/p1_p2_transition_snapshot_trajectory.csv`):
+  2026-02-28 00:00 dark_share 0.12% -> 08:00 **14.29%** -> 16:00 13.30% ->
+  2026-03-01 00:00 (first P3 snapshot) 13.42%. This shows a genuine
+  single-step jump between 00:00 and 08:00 (consistent with the
+  independently-measured ~40min transition landing inside that 8h gap),
+  and - the actually reassuring part - the post-jump level is immediately
+  stable and matches P3's own plateau from its very first snapshot: P2's
+  reported 13.79% (mean of its 2 snapshots) is not an arbitrary or fragile
+  average, it's representative of a plateau that was already flat by the
+  time P2 starts. The qualitative filtering-dominant shape survives; the
+  original expectation that "P0/P2/P3 barely move" under this sweep did
+  NOT survive as stated (P2 moves a great deal under a naive ±24h test)
+  and is corrected here to the snapshot-level characterization instead.
+- Alternatives considered: keep press-reported priors and only footnote the
+  January event (rejected - directly contradicts D-001's own rationale that
+  boundaries must be derived, not assumed, and would leave a materially
+  misleading P1 average in the paper); fold the January event into P0
+  instead of giving P1 to it (rejected - an 18-day, ~96%-country-signal-
+  collapse, control-validated event is not "baseline" by any reasonable
+  reading, regardless of what phase number it gets).
+- Implemented (2026-07-06): `config/phases.yaml` P0-P4 boundaries updated to
+  the values above (also closes a pre-existing 24h phase-model gap between
+  the old P1 end and P2 start, both nominally Feb 27/28); `event_windows`
+  gained `jan2026_event` (2026-01-07 -> 2026-01-28, a day of margin each
+  side) for a future full BGP update-stream pull (minute-resolution, like
+  `feb2026_onset`) - queued behind `jun2025` intentionally, per the
+  2026-07-06 OOM lesson against running concurrent heavy collection jobs on
+  the same EC2 host; the event window itself has NOT been pulled yet.
+  Full-period H1-H4 phase breakdown rerun under the new boundaries; see
+  [[killswitch-h1-finding]] for results.
+- Affects: everything downstream (D-001's own scope); directly changes the
+  P0-P4 numbers reported 2026-07-06 (this session); H4 (adds a 4th real
+  event, arguably more analytically interesting than jun2025 for cross-
+  event comparison once it has its own event window).

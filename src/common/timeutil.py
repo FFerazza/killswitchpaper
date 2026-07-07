@@ -34,3 +34,15 @@ def snapshot_times(start: int, end: int, interval_hours: int) -> Iterator[int]:
     first = ((start + step - 1) // step) * step
     for ts in range(first, end, step):
         yield ts
+
+
+def update_times(start: int, end: int) -> Iterator[int]:
+    """Yield RIS update-dump grid times (5-minute cadence) covering [start, end).
+
+    D-021: direct-fetched update files follow the same deterministic-grid
+    logic as `snapshot_times`, just at RIS's native 5-minute cadence.
+    """
+    step = 300
+    first = ((start + step - 1) // step) * step
+    for ts in range(first, end, step):
+        yield ts

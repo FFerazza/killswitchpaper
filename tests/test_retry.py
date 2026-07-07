@@ -113,3 +113,28 @@ def test_run_ribs_broker_fallback_rescues_direct_failure(monkeypatch, tmp_path):
     assert (tmp_path / "rib_0.parquet").exists()
     assert (tmp_path / "rib_28800.parquet").exists()
     assert (tmp_path / "rib_57600.parquet").exists()
+
+
+def test_run_events_retries_windows_on_transport_error(monkeypatch):
+    from types import SimpleNamespace
+    from src.bgp import events as ev
+    from src.bgp import ribs
+
+    calls = []
+
+    def flaky_window(window, collectors, matcher, out_path):
+        calls.append(window.name)
+        if len(calls) < 2:
+            raise StreamTransportError("corrupted-record")
+
+    monkeypatch.setattr(ev, "process_window", flaky_window)
+    monkeypatch.setattr(ribs, "retry_transport",
+                        lambda fn, **kw: retry_transport(fn, attempts=3, delay_s=0))
+    monkeypatch.setattr(ev, "PrefixMatcher", lambda populations: None)
+    # ris_backfill_collectors=[] keeps this test on the pre-D-021 broker-only
+    # path (direct_ready requires a nonempty RIS collector list).
+    cfg = SimpleNamespace(collectors=["c1"], ris_backfill_collectors=[])
+    w = SimpleNamespace(name="jun2025", start=0, end=1)
+
+    ev.run_events(cfg, __import__("pathlib").Path("/tmp"), {}, [w])
+    assert calls == ["jun2025", "jun2025"]

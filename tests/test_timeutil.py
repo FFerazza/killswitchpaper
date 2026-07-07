@@ -1,6 +1,6 @@
 """Unit tests for time utilities (UTC/unix conventions, snapshot grid)."""
 
-from src.common.timeutil import snapshot_times, to_iso, to_unix
+from src.common.timeutil import snapshot_times, to_iso, to_unix, update_times
 
 
 def test_to_unix_utc():
@@ -26,3 +26,20 @@ def test_snapshot_times_inclusive_start_on_grid():
     end = to_unix("2026-02-25T16:00:01Z")
     times = [to_iso(t) for t in snapshot_times(start, end, 8)]
     assert times == ["2026-02-25T00:00:00Z", "2026-02-25T08:00:00Z", "2026-02-25T16:00:00Z"]
+
+
+def test_update_times_5min_grid():
+    start = to_unix("2025-06-11T00:00:00Z")
+    end = to_unix("2025-06-11T00:15:01Z")
+    times = [to_iso(t) for t in update_times(start, end)]
+    assert times == [
+        "2025-06-11T00:00:00Z", "2025-06-11T00:05:00Z",
+        "2025-06-11T00:10:00Z", "2025-06-11T00:15:00Z",
+    ]
+
+
+def test_update_times_off_grid_start_rounds_up():
+    start = to_unix("2025-06-11T00:01:00Z")
+    end = to_unix("2025-06-11T00:10:00Z")
+    times = [to_iso(t) for t in update_times(start, end)]
+    assert times == ["2025-06-11T00:05:00Z"]
