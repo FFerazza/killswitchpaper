@@ -955,3 +955,84 @@ Entry template:
   P0-P4 numbers reported 2026-07-06 (this session); H4 (adds a 4th real
   event, arguably more analytically interesting than jun2025 for cross-
   event comparison once it has its own event window).
+
+## D-026 — Resolution of D-013 steps 4/5: final visibility/dark-ratio thresholds
+- Status: DECIDED (2026-07-07, FF signed)
+- Question: D-013 left `visibility_announced_min` and `probing_dark_ratio`
+  as provisional pipeline defaults (0.5, 0.2), deferring the final values
+  to two sub-steps that were never executed: (4) place
+  `visibility_announced_min` in the empty valley of the P0, per-AS
+  visibility distribution, with a literature-precedent check taking
+  priority if a verifiable one exists; (5) calibrate `probing_dark_ratio`
+  on the D-008 control population in quiet periods, choosing the largest
+  ratio whose false-dark rate is < 1%. Every H1 number reported to date
+  rests on these unfinalized values (`config/phases.yaml` carried the
+  comment "No H1 number computed with these is reportable").
+- Method: `src/analysis/threshold_calibration.py`
+  (`p0_visibility_histogram`, `find_valley`,
+  `dark_ratio_false_positive_sweep`, `largest_ratio_under`), plus a
+  literature search for step 4's precedent check.
+  1. Visibility: computed the P0 per-AS visibility histogram (200 bins,
+     `_per_as_visibility` collapsed to P0's window) - found a clean empty
+     valley at [0.465, 0.480], midpoint 0.4725. Literature check: IODA's
+     own BGP methodology defines visibility as "seen by at least 50% of
+     the peers at the route collectors" (CAIDA/APNIC, verified via
+     WebFetch/WebSearch, not memory) - a directly comparable precedent
+     that lands just outside the empirical valley's upper edge. Per D-013
+     step 4's own priority rule, the verified precedent (0.5) is used;
+     confirmed on real data that 0.4725 and 0.5 produce byte-identical
+     `bgp_vs_ioda` output (no AS-timestamp pair falls between them), so
+     this is a genuine no-op choice between the two, not a compromise.
+  2. Dark ratio: first pass calibrated the false-dark-rate sweep on P0
+     only, found 0.8 (crossover at 0.85, 1.79% false-dark). Checked against
+     the existing D-008 bin-level artifact gate over the FULL study
+     period and it failed badly - 176/1278 bins artifact-flagged, some
+     control ASNs hitting 50% "dark" share, concentrated in a handful of
+     low-baseline/noisy control ASNs (AE 41268/8966/216071, PK
+     59257/59605/38710) whose ping-slash24 signal is inherently high-
+     variance relative to a small baseline median. The P0-only sweep was
+     an overfit to one slice of the control data - "quiet periods" for a
+     control population with zero documented caveats
+     (`config/controls.yaml` caveats: []) means the full study period, not
+     just P0, since that's the actual scope the ratio is applied over.
+     Recalibrated the sweep on the full study period (1278 bins x 30
+     controls, 38,340 pairs): false-dark rate crosses 1% at ratio=0.45
+     (1.00%); 0.40 is the largest ratio staying strictly under 1%
+     (0.978%). Re-checked the D-008 bin-level gate at 0.40: 5/1278 bins
+     flagged (vs 0/1278 today), mean control dark_share 0.98% - materially
+     better than the rejected 0.8 candidate, a small residual noted rather
+     than hidden.
+- Decision: `visibility_announced_min = 0.5` (unchanged from the
+  provisional value, now backed by literature precedent + empirical valley
+  rather than being a placeholder); `probing_dark_ratio = 0.4` (up from
+  the provisional 0.2).
+- Rationale: same structure as D-013's own procedure - precedent takes
+  priority for the threshold that has one and is verifiable; the ratio is
+  calibrated on non-analysis (control) data using the actual scope it will
+  be applied over, not a convenient subset. The P0-only sweep's failure is
+  reported as part of the record, not smoothed over, per this project's
+  own culture of surfacing test-design mistakes (D-020, D-025).
+- H1 impact (checked before sign-off, `python -m src.analysis.joins.bgp_vs_ioda`
+  + `phase_breakdown.dark_and_withdrawn_share` rerun under both value
+  sets): dark_share moves modestly and in the same direction at every
+  phase - P0 0.31%->0.39%, P1 5.37%->5.75%, P2 13.79%->14.59%, P3
+  14.28%->15.02%, P4 2.01%->3.31%. P0 stays near-zero (baseline sanity
+  check passes); the filtering-dominant, P2/P3-peak qualitative shape is
+  unchanged. P4's relative jump (2.01%->3.31%, the largest proportional
+  move of any phase) is consistent with - and sharpens - the "partial,
+  still-degraded" reading of the restoration phase.
+- Alternatives considered / robustness checks owed: the D-013 step-6
+  robustness grid (threshold +/-0.25, ratio {0.1, 0.3}) is still owed and
+  pre-committed, now against these final values rather than the
+  provisional ones; per-country breakdown of the 5 residual artifact-
+  flagged bins at ratio=0.4, to confirm they don't cluster in a way that
+  would warrant a `config/controls.yaml` caveat entry (deferred - not
+  blocking, the residual is small and the gate is not used to exclude
+  Iranian findings, only to flag them).
+- Implemented in: `src/analysis/threshold_calibration.py`;
+  `config/phases.yaml` (`analysis.probing_dark_ratio: 0.4`,
+  `visibility_announced_min` unchanged at 0.5, comment updated to remove
+  "provisional"/"not reportable" language); `src/analysis/controls.py`
+  (`control_dark_rows` extracted from `control_dark_shares` for reuse).
+- Affects: every H1 number in the paper; D-013 (closes its steps 4/5,
+  formerly open); H3 secondarily (state-derivation logic is shared).

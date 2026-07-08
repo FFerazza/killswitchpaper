@@ -30,7 +30,7 @@ from src.analysis.joins import _PROBING_SIGNAL, _probing_baseline
 log = get_logger("analysis.controls")
 
 
-def control_dark_shares(
+def control_dark_rows(
     control_asns: dict[str, list[int]],
     ioda_asn_dir: Path,
     baseline_dir: Path,
@@ -38,7 +38,11 @@ def control_dark_shares(
     probing_dark_ratio: float,
     probing_adequacy: dict,
 ) -> pd.DataFrame:
-    """Per grid bin: share of (adequate) control ASNs whose probing is dark."""
+    """Per (control ASN, grid ts): whether probing is dark under the D-013
+    rule. One row per adequate-control observation; callers aggregate as
+    needed (control_dark_shares aggregates per bin, threshold_calibration's
+    false-positive sweep pools across the whole grid).
+    """
     rows = []
     for cc, asns in control_asns.items():
         for asn in asns:
@@ -68,6 +72,21 @@ def control_dark_shares(
     per_asn = pd.DataFrame(rows)
     if per_asn.empty:
         raise SystemExit("no control observations - pull control IODA data first")
+    return per_asn
+
+
+def control_dark_shares(
+    control_asns: dict[str, list[int]],
+    ioda_asn_dir: Path,
+    baseline_dir: Path,
+    grid: list[int],
+    probing_dark_ratio: float,
+    probing_adequacy: dict,
+) -> pd.DataFrame:
+    """Per grid bin: share of (adequate) control ASNs whose probing is dark."""
+    per_asn = control_dark_rows(
+        control_asns, ioda_asn_dir, baseline_dir, grid, probing_dark_ratio, probing_adequacy,
+    )
     shares = (
         per_asn.groupby("ts")
         .agg(n_controls=("asn", "nunique"), dark_share=("dark", "mean"))

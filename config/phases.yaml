@@ -101,11 +101,16 @@ ioda:
 ripestat_sample_asns: [49666, 12880, 58224, 197207, 44244]
 
 analysis:
-  # D-013: thresholds are PROVISIONAL pipeline values. Paper-grade values come from
-  # the D-013 procedure (literature precedent -> P0 bimodality valley -> control-
-  # population calibration). No H1 number computed with these is reportable.
+  # D-026 (resolves D-013 steps 4/5): FINAL values. visibility_announced_min
+  # matches IODA's own literature-precedent BGP-visibility convention (50%
+  # of peers) and sits just outside the empirically-found P0 per-AS valley
+  # [0.465, 0.480] - verified byte-identical H1 output at either bound.
+  # probing_dark_ratio is calibrated on the D-008 control population over
+  # the full study period (not just P0 - a P0-only sweep overfit to 0.8 and
+  # failed the full-period artifact gate): largest ratio with false-dark
+  # rate < 1% is 0.40.
   visibility_announced_min: 0.5   # visibility fraction >= this => announced
-  probing_dark_ratio: 0.2         # probing below this fraction of baseline => dark
+  probing_dark_ratio: 0.4         # probing below this fraction of baseline => dark
   # D-013 (D-005): fixed P0 reference window for per-AS probing baselines
   # (median over window), and the adequacy rule for probing-based metrics.
   probing_baseline_window: { start: "2025-09-01T00:00:00Z", end: "2025-10-01T00:00:00Z" }
