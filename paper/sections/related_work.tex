@@ -1,0 +1,59 @@
+Large-scale Internet outage detection combining BGP routing data, active
+probing, and network-telescope (Internet background radiation) traffic is
+the general measurement approach this paper builds on, developed and
+operated as IODA~\citep{alcock2024ioda}. This paper adopts IODA's own
+BGP-visibility convention (a route is counted as visible if seen by at
+least half of the route collectors monitoring it) directly, rather than
+re-deriving an independent threshold, for comparability
+(Section~\ref{sec:methods}).
+
+Iran's November 2019 nationwide blackout -- a short reference event that
+falls inside this study's pre-shutdown baseline period (Section~\ref{sec:methods})
+-- was previously characterized through network-telescope and
+compromised-host measurement combined with
+BGP reachability tracking,
+finding cellular operators disconnected first and the bulk of the country
+following over the next several
+hours~\citep{mangino2021multidimensional}. This paper's H4 comparison
+(Section~\ref{sec:h4}) revisits that same event at BGP-update-stream
+resolution alongside three later windows, using a straggler-robust
+interpercentile duration metric rather than full withdrawal range.
+
+Two contemporaneous, independently authored studies cover parts of the
+same 2025--26 shutdown period this paper measures, each with a distinct
+methodology. \citet{aceto2026iran} cover the January 2026 event identified
+in Section~\ref{sec:h1} using a combination of public BGP/RIS/RouteViews
+data, IODA active probing, and network-telescope data -- the same core
+measurement trio this paper uses, plus CDN/passive-flow data and OONI
+censorship-measurement data this paper does not have. This paper
+frames its own treatment of the January event as an independent
+reproduction via measurement, adding finer BGP-level onset/offset timing to
+prior public coverage instead of presenting the event as new
+(Section~\ref{sec:h1}).
+\citet{jahromi2026multiperspective} cover the 2026 blackout using passive
+Censys scans and active TCP probing from external vantage points combined
+with BGP analysis -- a measurement approach with no overlap in data
+sources with this paper's own (which relies on BGP routing data and
+IODA's active-probing and network-telescope signals) -- and report the shutdown enforced
+via forwarding-plane null-routing with BGP announcements remaining stable,
+plus structural exemptions for academic networks and a major CDN. Where
+this paper's own findings intersect with theirs (Sections~\ref{sec:h1},
+\ref{sec:h3}), the two independently derived measurements are pointed out
+as corroborating rather than merged, since the underlying vantage points
+and methods differ.
+
+Beyond these Iran-specific studies, this paper's approach sits inside a
+broader body of censorship-measurement work. Combining BGP control-plane
+data with network-telescope (darknet) traffic to detect and characterize
+country-wide outages -- the core combination this paper also uses --
+originates with \citet{dainotti2013outages}'s analysis of the 2011 Egypt
+and Libya shutdowns. \citet{bischof2023destination} extend that approach
+to the first systematic, cross-country characterization of
+government-ordered shutdowns versus spontaneous outages (155 countries
+over four years), built on the same IODA dataset this paper draws
+on~\citep{alcock2024ioda}; this paper's single-country, two-series
+measurement design is a deep case study within the space that survey
+characterizes at scale. \citet{wendzel2025survey} situate both within the
+wider internet-censorship-measurement field more broadly, covering
+measurement methodology and available datasets beyond outages and
+shutdowns specifically.

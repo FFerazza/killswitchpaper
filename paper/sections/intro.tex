@@ -1,0 +1,55 @@
+Nationwide internet shutdowns are a recurring instrument of state control,
+documented annually across dozens of countries~\citep{accessnow2026keepiton}.
+Iran's 2025--26 shutdown is among the most extended and heavily reported
+examples of the period, but public reporting on \emph{how} such a shutdown
+was implemented -- by what technical mechanism, in what sequence, and with
+what selectivity -- is necessarily limited to what is externally
+observable. This paper reconstructs the technical execution of Iran's
+2025--26 shutdown from two independent classes of Internet-scale
+measurement: BGP routing visibility (RouteViews and RIS route collectors)
+and active-probing/network-telescope outage signals (IODA), joined on a
+shared timeline per Autonomous System.
+
+The reconstruction is organized around four questions, each mapped to one
+governing hypothesis and tested against the joined measurement:
+
+\begin{description}
+\item[H1 (mechanism).] Was the blackout executed by withdrawing routes from
+  BGP (a control-plane action, visible as routes disappearing) or by
+  filtering traffic while routes remained announced (a data-plane action,
+  visible as reachability collapsing without route withdrawal)?
+  Section~\ref{sec:h1}.
+\item[H2 (topology).] Was disconnection executed at a small number of
+  international-gateway ASes, or distributed across individual access
+  networks? Section~\ref{sec:h2}.
+\item[H3 (selectivity).] During the partial, tiered restoration that began
+  in P4, did government, banking, and state-media networks regain
+  international visibility earlier and more completely than consumer/mobile
+  networks? Section~\ref{sec:h3}.
+\item[H4 (rehearsal).] Was the 2026 onset executed faster or more uniformly
+  than Iran's own prior shutdown/restoration events (November 2019, June
+  2025)? Section~\ref{sec:h4}.
+\end{description}
+
+Every threshold, exclusion rule, and definition this measurement depends on
+-- what counts as ``visible,'' what counts as ``dark,'' where phase
+boundaries fall, which population of ASes is in scope -- is decided and
+recorded before its effect on any finding is seen, and is reported in full
+in Section~\ref{sec:methods} together with the robustness checks each
+decision obligates. Every empirical claim in Sections~\ref{sec:h1}--\ref{sec:h4}
+carries an explicit attribution tier (observed / strongly implied /
+consistent with reporting), and disconfirming evidence -- results that
+complicate a hypothesis instead of confirming it -- is reported alongside
+confirming evidence, not glossed over
+(Section~\ref{sec:discussion}).
+
+This study's headline finding -- a filtering-dominant blackout
+(Section~\ref{sec:h1}) -- is also independently reached, via an entirely
+different measurement stack, by a contemporaneous study of the same
+event~\citep{jahromi2026multiperspective}. Part of the period this paper
+covers -- an 18-day event in January 2026, identified in this study's own
+data via a blind scan and not assumed from prior reporting -- is also
+independently covered by a second
+contemporaneous study~\citep{aceto2026iran}; this paper's contribution
+regarding that specific event is an independent reproduction with finer
+BGP-level timing, not a discovery claim.

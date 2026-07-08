@@ -1,0 +1,347 @@
+This paper follows a strict rule throughout: every threshold, cutoff, or
+definition used in the analysis was chosen and written down \emph{before}
+its effect on any result was seen, together with the reasoning behind it
+and a plan for testing how sensitive the results are to it. Where a choice
+was later revised, the earlier version and the reason for the change are
+both kept on record rather than quietly edited away. This section explains
+every such choice in plain terms.
+
+\subsection{Study period and phases}
+\label{sec:phases}
+
+The study covers \PZeroStart{} through \PFourBoundary{}. For analysis, this
+period is split into five phases, summarized in Table~\ref{tab:phases}.
+The boundaries between phases were not taken from press reports or public
+timelines; they were found directly in the data, by scanning the entire
+study period for sustained drops in Iran's country-level network
+responsiveness (at least two days long, using the same responsiveness
+threshold defined in Section~\ref{sec:state-derivation}) without assuming in
+advance where a shutdown might be. This scan surfaced exactly three such
+drops: a short one in June 2025 (a previously known reference event, used
+here as a smaller-scale comparison case), an 18-day one beginning
+\POneStart{} that had not previously been identified as a distinct event,
+and the long shutdown from late February through May 2026. Notably, the
+scan found no drop at all around the commonly reported ``late December 2025''
+start date for a gradual throttling period -- every signal checked stays
+flat and normal through all of December 2025, so this paper's baseline
+period simply extends up to the first point where a real change is
+detectable in the data, rather than stopping at a press-reported date that
+the measurement does not support.
+
+\begin{table}[t]
+\centering
+\small
+\caption{The five study phases. All boundaries are UTC.}
+\label{tab:phases}
+\begin{tabular}{@{}p{0.6cm} p{1.6cm} p{4.2cm} p{6.5cm}@{}}
+\toprule
+Phase & Name & Period & What happened \\
+\midrule
+P0 & \PZeroName{} & \PZeroStart{} -- \PZeroBoundary{} & Normal conditions, including a brief reference blackout in June 2025. \\[4pt]
+P1 & \POneName{} & \POneStart{} -- \POneBoundary{} & An 18-day near-total blackout, followed by roughly a month back to normal before the main shutdown. \\[4pt]
+P2 & \PTwoName{} & \PTwoStart{} -- \PTwoBoundary{} & The main shutdown begins; connectivity collapses within about 40 minutes. \\[4pt]
+P3 & \PThreeName{} & \PThreeStart{} -- \PThreeBoundary{} & Sustained, near-total blackout. \\[4pt]
+P4 & \PFourName{} & \PFourStart{} -- \PFourBoundary{} & Partial, uneven recovery. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The Prelude phase (P1) is a single labeled span but is not uniform: it
+contains the 18-day blackout mentioned above followed by a quieter
+month-long stretch before the main shutdown begins. Results for this phase
+are always reported with the 18-day event called out on its own, rather
+than averaged together with the quieter stretch that follows it.
+
+The exact instant the main shutdown begins (the start of the Onset phase,
+P2) is measured to the minute using the network-responsiveness signal,
+which is recorded roughly every ten minutes -- far finer than the 8-hour
+snapshots used for the routing measurements described below. This matters
+because the Onset phase itself is short (about 16 hours) and only two
+routing snapshots fall inside it, so any result reported for this phase
+individually is really an average of just two measurements. Checking that
+average against nearby snapshots shows it is a stable, representative
+number, not a fragile average of only two points: connectivity drops
+sharply between \trajTimePrevMidnight{} and \trajTimeTransitionMorning{}
+(from \trajDarkSharePrevMidnight{} of networks affected to
+\trajDarkShareTransitionMorning{}), and stays at essentially that same level
+through \trajTimeTransitionAfternoon{} (\trajDarkShareTransitionAfternoon{})
+and into the following phase (\trajDarkShareNextMidnight{}) -- a single
+sharp step that immediately settles at the level the shutdown holds for
+months afterward, not a number that would have looked very different had
+the boundary been drawn an hour or two earlier or later.
+
+\subsection{Network population and classification}
+
+The set of Iranian networks studied (\nIrAsns{} networks, \nIrPrefixes{}
+address blocks) is derived from public Internet registry records, which
+list which address blocks are assigned to which country and organization.
+
+Each network is assigned one of ten categories -- state telecom, mobile,
+internet service provider (ISP), government, financial, energy, media,
+hosting, education, or other -- based on the service it actually provides,
+not who owns it. A state-owned consumer internet provider is categorized as
+an ordinary ISP, for example; the state-telecom category is reserved for
+the core operators that carry Iran's international connectivity,
+regardless of their corporate structure. Category assignment combines
+three approaches: the largest 100 or so networks by address space, every
+network that shows up in a network-behavior group relevant to the
+selectivity question this paper asks (Section~\ref{sec:h3}), and a
+name-matching pass over official registry organization names (for example,
+matching ``bank,'' ``finance,'' or ``payment'' to the financial category) that
+catches small but analytically important sectors -- banks and payment
+processors typically use much less address space than large telecom
+operators, so a pure size cutoff would have missed exactly the sectors this
+paper's selectivity question is about. Name matches only suggest
+candidates; every category assignment is a human judgment call, checked
+against public information about each organization. Categories with fewer
+than 20 classified networks (mobile: \nTypeMobile{}; education:
+\nTypeEducation{}) are reported only as raw counts, never percentages,
+since percentages of that few networks are not meaningful. \nClassified{}
+of \nIrAsns{} networks have been categorized this way; the rest are left
+uncategorized and appear only in the ``unclassified'' group in
+category-based results.
+
+Category assignments were proposed by researching each organization's
+publicly available information, then independently checked: a second
+reviewer, without seeing the proposed categories, blind-coded a random
+sample of \kappaN{} networks. The two sets of categorizations agreed on
+\kappaAgreePct{} of cases (Cohen's $\kappa$ = \kappaValue{}, comfortably
+above the 0.7 threshold set in advance for judging the categorization
+reliable).
+
+\subsection{Control population}
+
+To distinguish Iran-specific events from artifacts of the measurement
+setup itself, the same signals are also tracked for \nControlAsnsTotal{}
+networks in three neighboring countries with no documented nationwide
+shutdown during the study period (Turkey, the United Arab Emirates, and
+Pakistan; \nControlAsnsPerCountry{} networks each). These control networks
+were selected mechanically -- the largest networks by address space in
+each country that meet the same data-adequacy bar used for Iran (below) --
+and fixed in advance, before being used to check any result. A given time
+window is flagged as a possible measurement artifact if the same kind of
+anomaly (a responsiveness drop or a routing-visibility drop) shows up in at
+least \controlArtifactBinShare{} of the control networks at the same time.
+Every anomaly reported for Iran in this paper is checked against this
+control group, and anything that shows up equally in the controls is
+treated as a measurement artifact, not a real Iranian event.
+
+\subsection{Measuring routing visibility}
+\label{sec:visibility}
+
+Global Internet routers continuously exchange messages announcing which
+address blocks they can reach, via the Border Gateway Protocol (BGP). A
+subset of these routers, called route collectors, publicly and
+continuously record everything they see; two long-running collector
+projects, RouteViews and the RIPE Routing Information Service (RIS), are
+the data source for this paper's routing measurements. If a network's
+address block is being announced and reaching these collectors, the block
+is ``visible''; if collectors stop hearing it announced at all, it has been
+``withdrawn.''
+
+Visibility is measured every \ribIntervalHours{} hours across the full
+study period, using a fixed set of collectors (RouteViews' two most
+complete vantage points) as the main data source. A collector counts as
+providing full coverage at a given time only if it is carrying at least
+\fullFeedMinIpvFour{} IPv4 routes or \fullFeedMinIpvSix{} IPv6 routes; the
+visibility measurement at each point in time only counts collectors
+meeting this bar at that specific time, rather than assuming a fixed set of
+collectors are always reliable. This matters because collector data feeds
+occasionally have real gaps or outages that have nothing to do with events
+in Iran, and without this check such a gap could easily be mistaken for an
+Iranian connectivity event. Time points where too few collectors meet this
+bar (fewer than \minFullfeedPeers{} -- a level chosen so that the
+statistical noise in the measurement stays small relative to the
+thresholds used elsewhere in this paper) are excluded from
+visibility-based results rather than reported on unreliable data.
+
+A second, supplementary set of measurements uses a wider range of
+collectors (RouteViews and RIS combined, several hundred vantage points)
+but only during the periods this paper's questions are most sensitive to
+vantage-point choice: the main shutdown's onset, the entire recovery phase,
+one baseline reference month, and three sample weeks during the sustained
+blackout. This wider measurement is used only for the specific secondary
+checks noted where it appears, never mixed with the main measurement in a
+single comparison, and exists to confirm the main results are not an
+artifact of which collectors happen to be used. That confirmation is
+direct, not assumed: comparing the two measurements at the same points in
+time, \bimodalNearOnePrimary{} of values in the main measurement are close
+to fully visible and \bimodalNearZeroPrimary{} are close to fully
+withdrawn, with only \bimodalAmbiguousPrimary{} landing anywhere in
+between; the wider measurement shows an almost identical split
+(\bimodalNearOneRis{} / \bimodalNearZeroRis{} / \bimodalAmbiguousRis{})
+despite drawing on a substantially larger and different set of vantage
+points. In other words, visibility in this data is close to a clean
+on/off signal, and that stays true regardless of which collector set is
+used -- which is why a single fixed threshold for ``visible'' works well
+(Section~\ref{sec:state-derivation}), as Figure~\ref{fig:bimodality} shows
+directly.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.85\linewidth]{figures/bimodality}
+  \caption{Distribution of visibility values across individual address
+  blocks, comparing the main measurement to the wider one, at their shared
+  points in time. Each line is a probability density over 40 equal-width
+  bins spanning 0 (fully withdrawn) to 1 (fully visible); the $y$-axis is
+  log-scaled so that both the dominant near-0/near-1 modes and the sparse
+  middle are visible on one plot (a bar's height, times the bin width of
+  0.025, gives the fraction of values falling in that bin -- a height of
+  10 on this plot is about 25\% of all values landing in that single bin).
+  The shaded band marks the same ``ambiguous middle'' (visibility strictly
+  between 0.1 and 0.9) referenced by the \bimodalAmbiguousPrimary{} and
+  \bimodalAmbiguousRis{} figures in the text: both measurements place
+  almost all of their mass outside it, in an almost identical shape,
+  despite drawing on substantially different numbers and locations of
+  vantage points.}
+  \label{fig:bimodality}
+\end{figure}
+
+As an independent check, this paper's routing measurements were compared
+against a public routing-history lookup service (RIPEstat) for a sample of
+major Iranian networks, and agreed on \ripestatAgreeN{} of \ripestatN{}
+network/time-point pairs checked.
+
+\subsection{Measuring reachability and classifying network state}
+\label{sec:state-derivation}
+
+Routing visibility alone does not tell us whether a network was actually
+reachable -- a network can remain visible in BGP while all traffic to it is
+silently blocked. To capture this, this paper also uses IODA, a public
+Internet-outage monitoring service that continuously and passively
+measures how many hosts in each network respond to background Internet
+traffic (an approach that requires no cooperation from, or special access
+to, the networks being measured). Each network, at each point in time, is
+classified into one of three states: \emph{announced and reachable}
+(visible in routing, and responding normally); \emph{announced but dark}
+(visible in routing, but the responsiveness signal has collapsed relative
+to that network's own normal level -- the signature of traffic filtering
+rather than a routing-level shutdown); or \emph{withdrawn} (not visible in
+routing at all).
+
+A network's ``normal level'' of responsiveness is its own median value over
+a fixed, pre-registered reference month (\probingBaselineStart{} to
+\probingBaselineEnd{}, chosen for being distant from both the June 2025
+reference blackout and the shutdown itself, before any results were seen).
+A network is only included in reachability-based results if it had enough
+signal during that reference month to establish a meaningful baseline
+(\probingAdequacyMinNonzeroShare{} of the month with a nonzero reading, and
+a median of at least \probingAdequacyMinMedian{} units); \nProbingExcluded{}
+of \nIrAsns{} networks do not meet this bar and are excluded from
+reachability results, though they still contribute to routing-only
+results. Because a network with missing or insufficient data defaults to
+``reachable'' rather than ``dark'' (classifying a network as dark requires
+positive evidence of a responsiveness collapse), every \emph{announced but
+dark} figure reported in this paper is a conservative, lower-bound
+estimate.
+
+The two numeric thresholds behind this classification -- how visible a
+network's routing must be to count as ``announced,'' and how far
+responsiveness must fall (relative to a network's own baseline) to count as
+``dark'' -- were each set by a dedicated check, run and signed off before any
+headline result was treated as final. For the visibility threshold, the
+distribution of individual networks' baseline-period visibility values
+shows a clean gap between ``clearly visible'' and ``clearly not,'' and the
+threshold used (\visibilityAnnouncedMin{}) falls inside that gap
+($[\visibilityValleyLo{}, \visibilityValleyHi{}]$); this also happens to
+match the definition used by IODA's own methodology (visible to at least
+half of monitoring collectors)~\citep{alcock2024ioda}, which was given
+priority for comparability with other work once it was confirmed that
+either value produces identical results on this paper's data. For the
+responsiveness threshold, the value used (\probingDarkRatio{}) is the
+largest one for which the control-population networks (which have no
+shutdown to detect) are essentially never misclassified as dark, checked
+across the entire study period rather than a single reference window so
+the result holds up under the full range of ordinary background noise
+those networks produce, not just a calm sample of it
+(\darkRatioCrossoverRatio{} is the point this stops holding, at a
+\darkRatioCrossoverRate{} false-positive rate).
+
+\subsection{Accounting for partial recovery}
+
+During the uneven recovery phase (Restoration, P4), address blocks
+sometimes come back online only in part -- a small piece of a larger block
+reappearing, rather than the whole thing. To capture this correctly, an
+address block's visibility is computed as the fraction of its total
+address space actually covered by currently visible announcements, rather
+than a simple yes/no check. Where the same address space is announced at
+more than one level of specificity at once (which happens routinely in
+normal BGP operation), it is only counted once, at the most specific level
+announced, so as not to double-count it. A simpler, coarser measure --
+whether \emph{any} part of a block has reappeared at all -- is also
+reported alongside this primary measure, since it answers a different,
+useful question, but it is never used in place of the primary measure
+because it cannot tell a fully restored block apart from one with only a
+small fragment back online.
+
+\subsection{Comparing shutdown speed across events}
+
+Five historical shutdown or restoration events -- November 2019, June
+2025, the January 2026 collapse, the February 2026 onset, and the May 2026
+restoration -- are compared at fine (minute-level) time resolution, using
+the full stream of
+routing announcements and withdrawals during each event window rather than
+the coarser periodic snapshots used elsewhere in this paper. Before
+comparing events, brief routing flickers (a route withdrawn and
+re-announced again within \flapThresholdSeconds{} seconds) are removed, on
+the grounds that these are ordinary network noise rather than a real
+disconnection. This cutoff was chosen by directly examining the timing
+gaps between withdrawals and their following re-announcements across
+millions of such events: most reconnect within the first minute in a way
+consistent with routine protocol-level retransmission, after which the
+pattern changes shape. The exact cutoff is not critical to this paper's
+conclusions -- the main comparison across events changes by less than 2\%
+whether flickers shorter than 30, 60, or 300 seconds are removed.
+
+The primary metric used to compare how quickly each event unfolded is the
+range between the 5th and 95th percentile of when individual address
+blocks were first withdrawn, rather than the full first-to-last range. In
+practice this means: take the withdrawal time of every affected address
+block, sort them, drop the earliest 5\% and the latest 5\%, and measure the
+span covered by the remaining middle 90\%. This matters because a handful
+of very early or very late outliers -- a network that happened to flap for
+an unrelated reason, or one that took days longer than everyone else to be
+affected -- can otherwise dominate the full first-to-last range and give a
+misleading picture of how the bulk of the event actually unfolded. The May
+2026 restoration event makes this concrete: its full first-to-last range
+is \durationMayRestorationFullRangeHours{} hours, but the trimmed
+5th-95th-percentile range is only \durationMayRestorationRangeHours{}
+hours -- a small number of straggling address blocks stretch the untrimmed
+range more than fourfold beyond where 90\% of the actual restoration
+activity took place. The full, untrimmed range is still reported alongside
+the trimmed one throughout, so this trimming is never hidden.
+
+\subsection{Defining ``restored''}
+
+An address block counts as restored at the first point after the
+Restoration phase (P4) begins where its visibility (using the
+address-space-weighted measure above) climbs back above
+\restorationPrimaryThresholdPct{} of that same block's own pre-shutdown
+baseline level. Two additional thresholds (25\% and 80\%) are also
+reported alongside this one throughout, to show whether the results are
+sensitive to exactly where this line is drawn. Separately, how
+\emph{completely} a block has recovered by the end of the study is reported
+as its average visibility over the final \steadyStateDays{} days, relative
+to baseline -- a different question from how \emph{quickly} it recovered,
+and reported separately rather than combined into one number. The routine
+8-hour measurement snapshots turn out to be too coarse to time recovery
+precisely (most blocks appear ``restored'' at the very first snapshot after
+the phase boundary, which reflects the measurement's time resolution more
+than the true recovery moment), so the fine-grained, minute-level event
+data described above is used instead for any result that compares recovery
+speed across network categories.
+
+\subsection{How claims are qualified}
+
+Every factual claim in this paper's results and discussion is labeled with
+one of three levels of confidence, decided in advance as a matter of
+study design rather than chosen sentence-by-sentence after seeing the
+results: \emph{observed} (directly shown by the measurement), \emph{strongly
+implied} (a pattern in the measurement whose alternative explanations are
+implausible, given tight timing and at least one independent, corroborating
+source), or \emph{consistent with reporting} (a plausible reading that
+depends on outside reports, which the measurement on its own does not
+establish). Claims about the intentions or decisions of specific actors --
+government orders, ministry decisions, and the like -- are never given
+higher confidence than the third level on the basis of this paper's
+measurement alone.

@@ -1,0 +1,81 @@
+\subsection{Synthesis}
+
+The measurement supports a filtering-dominant characterization of the
+2026 blackout over a control-plane-withdrawal one: at every phase after
+baseline, the dominant contributor to unreachability is routes that stay
+announced while active probing collapses, not routes disappearing from BGP
+(Section~\ref{sec:h1}). This holds at the level BGP visibility can actually
+speak to across all eleven classification types (Section~\ref{sec:h3}), and
+survives a control-population check that would catch a shared measurement
+artifact (Sections~\ref{sec:h1}, \ref{sec:h3}). Within that broad picture,
+restoration was selective by sector at the timescale the data can resolve,
+though the ordering is not a clean single-axis priority list
+(Section~\ref{sec:h3}): government and mobile restore fastest by median, but
+mobile's tail is long, and the interesting selectivity signal -- the
+state telecom operator sitting well ahead of the ordinary access-network
+population -- is a coarser, three-tier structure (fast/government-and-
+mobile, mid/state-infrastructure, slow/everything-else), not a fine-
+grained ranking by sector.
+
+\subsection{Disconfirming evidence}
+
+Two results run against the cleanest version of this paper's own findings.
+Both are kept in, not folded away. First, at P4 the control population's
+own mean dark share (\controlDarkSharePFour{}) is higher than Iran's
+(\darkSharePFour{}) -- restoration brings Iran's measured dark share back
+down into the same noise floor the control population sits in throughout
+the study, which is itself informative (Iran becomes statistically
+indistinguishable from ``normal network noise'' by this specific metric
+once restoration is underway) but means P4 cannot be read as ``still
+clearly anomalous'' by the dark-share metric alone; the restoration-timing
+and never-restored evidence in Section~\ref{sec:h3} is what actually
+substantiates P4 as a distinct, partial-restoration regime. Second, H2's
+originating claim -- that disconnection was executed at international-
+gateway ASes specifically, as opposed to distributed across access networks
+-- is not established by the aggregate upstream-transition-rate finding,
+which is topology-blind; the one small, explicit check run against the two
+named gateway ASNs was inconclusive on a sample far too small to draw a
+conclusion from (Section~\ref{sec:h2}).
+
+\subsection{Limitations}
+
+\begin{itemize}
+\item \textbf{H2's topological claim is untested at scale.} The aggregate
+  churn-rate spike at the shutdown's onset is consistent with a structural
+  reconfiguration but does not by itself distinguish gateway-level from
+  distributed access-network disconnection. Breaking the upstream-change
+  measurement down by each network's role in the topology -- gateway versus
+  access network -- is the natural next analysis and was outside this
+  study's scope.
+\item \textbf{H4 has no control-population check.} The cross-window
+  duration comparison (Section~\ref{sec:h4}) compares Iran to itself across
+  five historical windows spanning 2019--2026, not to a control population
+  at each of those times; shared measurement-infrastructure changes over
+  that seven-year span (collector coverage, IODA methodology changes) are
+  not ruled out the way H1/H3's within-study-period findings are.
+\item \textbf{Classification coverage is partial.} \nClassified{} of
+  \nIrAsns{} networks carry a category; the remainder are excluded from
+  category-based analyses. Several categories have fewer than 20 members
+  and carry count-only claims by design (Section~\ref{sec:methods}), since
+  small groups are more sensitive to individual coding decisions than
+  large ones.
+\item \textbf{A small residual of control-population bins remain flagged.}
+  \nControlArtifactBins{} of \nControlBins{} study-period bins cross the
+  artifact threshold under the final calibrated dark-ratio threshold,
+  concentrated late in the study period; this does not touch any Iranian
+  finding in this paper (Section~\ref{sec:h1}) but was not chased to a root
+  cause.
+\end{itemize}
+
+\subsection{Attribution discipline}
+
+Every claim above about \emph{why} a pattern occurred, as opposed to
+\emph{what} was measured, is bounded by the tiers in
+Section~\ref{sec:methods}: this paper's measurement can establish that
+routes stayed visible while reachability collapsed, and can time that
+collapse relative to BGP events to the minute; it cannot, from BGP and
+outage measurement alone, establish the internal decision process behind
+that collapse. Claims in this paper about government action or intent are
+sourced to external reporting, tiered no higher than \emph{consistent with
+reporting}, and are never presented as conclusions the measurement itself
+reaches.

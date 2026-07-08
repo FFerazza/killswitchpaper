@@ -1,0 +1,315 @@
+Figure~\ref{fig:timeline} gives the overall picture before the
+phase-by-phase results below: Iran's country-level network responsiveness,
+measured continuously across the full study period, relative to its own
+normal level. It is drawn in two panels because Baseline alone
+(\PZeroStart{} to \PZeroBoundary{}) covers a period wider than the other
+four phases put together, and within those four, Onset lasts only hours
+-- too narrow to label on the same axis as Baseline without it and Prelude
+overlapping. The top panel shows the full period for context, with the
+post-baseline window shaded; the bottom panel re-plots exactly that shaded
+window at its own scale, where all four remaining phases -- including the
+hours-long Onset, marked as a highlighted band -- get legible, non-
+overlapping labels. The five phases from Table~\ref{tab:phases} are marked
+in both panels, along with the responsiveness level (\probingDarkRatio{}
+of normal) below which a network counts as ``shut down'' in this paper's
+terms. That specific level is not an arbitrary round number: it is the
+most permissive cutoff that still almost never misfires on ordinary,
+quiet-network noise, measured directly on networks in three countries with
+no shutdown to detect, and checked against the entire study period rather
+than just one sample month (an earlier, narrower version of this check was
+tried first and rejected for exactly this reason --
+Section~\ref{sec:state-derivation} has the full calibration). Three drops
+are visible at a glance: a brief one in June 2025 (the reference event
+inside the baseline phase), the previously unidentified 18-day event at
+the start of the Prelude phase, and the sustained collapse that begins at
+Onset and does not meaningfully recover until Restoration.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/timeline}
+  \caption{Country-level network responsiveness, relative to normal.
+  \emph{Top:} full study period, with the post-baseline window (shaded)
+  shown zoomed in below. \emph{Bottom:} Prelude through Restoration at
+  higher time resolution; Onset (highlighted band) lasts only hours and
+  would not be visible at the top panel's scale. In both panels, the
+  dashed line marks the calibrated threshold below which a network counts
+  as unreachable in this paper's analysis (\probingDarkRatio{} of its
+  normal level; see Section~\ref{sec:state-derivation} for how this value
+  was chosen); dotted vertical lines mark the phase boundaries from
+  Table~\ref{tab:phases}.}
+  \label{fig:timeline}
+\end{figure}
+
+\subsection{H1: mechanism (filtering vs.\ control-plane withdrawal)}
+\label{sec:h1}
+
+At every phase after baseline, most of the loss in reachability comes from
+networks whose routes stay visible but that stop responding --
+\emph{announced but dark} in this paper's terms -- not from routes
+disappearing from the global routing table entirely (Figure~\ref{fig:state_share}).
+The share of networks in this ``announced but dark'' state rises from
+\darkSharePZero{} at baseline to \darkSharePOne{} during the Prelude phase
+(driven by the January event discussed below, not a phase-wide effect), to
+\darkSharePTwo{} at the shutdown's onset, and peaks at \darkSharePThree{}
+during the sustained blackout, before falling to \darkSharePFour{} during
+recovery. The share of networks actually withdrawn from routing, by
+contrast, moves far less across the same span
+(\withdrawnSharePZero{} $\to$ \withdrawnSharePOne{} $\to$ \withdrawnSharePTwo{}
+$\to$ \withdrawnSharePThree{} $\to$ \withdrawnSharePFour{}). This pattern --
+routes staying announced while reachability collapses -- is
+\textbf{observed} directly in the measurement.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.85\linewidth]{figures/state_share}
+  \caption{Share of networks in each connectivity state, by phase.
+  ``Announced but dark'' rises and falls with the phases; ``withdrawn'' stays
+  comparatively flat throughout.}
+  \label{fig:state_share}
+\end{figure}
+
+Two independent checks support treating this as a real, phase-linked
+effect rather than a measurement artifact. First, the same measurement
+applied to the \nControlAsnsTotal{}-network control population (three
+countries with no documented shutdown) does not track Iran's phase
+structure at all: the control group's share of ``dark'' networks stays low
+throughout (average \controlMeanDarkShare{}, never above
+\controlMaxDarkShare{}, across \nControlBins{} time points checked), rising
+only slightly and only during the sustained blackout and recovery phases,
+never approaching Iran's peak (Figure~\ref{fig:control_falsification}).
+Only \nControlArtifactBins{} of those \nControlBins{} time points cross the
+threshold set in advance for flagging a possible artifact, and all of them
+fall late in the study period, unrelated to Iran's own rise -- this is
+\textbf{observed} to not explain Iran's pattern. Second, the exact timing
+of the shutdown's onset can be checked two ways at once. The
+country-level responsiveness signal crosses into ``dark'' territory at
+\PTwoStart{} (Section~\ref{sec:phases}), while the bulk of routing
+withdrawals -- the point by which 5\% of affected address blocks had
+already been withdrawn, counting only withdrawals from that moment onward
+so ordinary background routing changes beforehand are not mistaken for
+part of the event -- does not happen until \withdrawalWaveTPFive{}, roughly
+\withdrawalWaveGapMinutes{} minutes later (\withdrawalWaveNPrefixes{}
+address blocks withdrawn in that wave). That responsiveness collapses
+before the bulk of routing withdrawals is \textbf{observed} directly;
+that this reflects traffic filtering happening ahead of a separate, slower
+routing-level action is \textbf{strongly implied} by two independent
+measurements (routing state and responsiveness) agreeing on the same
+sequence, with no plausible artifact explanation surviving the control
+check above. This reading is further corroborated by an independently
+authored study using an entirely different measurement approach (passive
+network scans and active connection probing from external vantage points,
+with no overlap with this paper's own data sources), which reports the
+2026 blackout enforced through traffic-blocking at a small number of
+central points while routing announcements themselves stayed
+stable across 96.5--97.4\% of the Iranian address space it
+checked~\citep{jahromi2026multiperspective} -- a more mechanistically
+specific description of the same routes-stay-visible pattern this paper
+measures.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.7\linewidth]{figures/control_falsification}
+  \caption{Mean share of ``dark'' networks, Iran vs.\ the control population, by phase. The
+  control group does not track Iran's rise during the shutdown.}
+  \label{fig:control_falsification}
+\end{figure}
+
+A closer look at the individual measurements taken right around the
+shutdown's onset (Figure~\ref{fig:transition_zoom}) shows a single sharp
+step, with the level immediately after the step already matching the
+level the blackout holds at for months afterward -- \textbf{observed}, and
+the reason this paper treats the onset phase's reported numbers as
+representative of a real, stable state rather than a fluke of exactly
+when the measurement happened to be taken (see Section~\ref{sec:phases}
+for why this phase is unusually short).
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.7\linewidth]{figures/transition_zoom}
+  \caption{Share of networks ``dark'' and ``withdrawn'' at four consecutive
+  measurements spanning the shutdown's onset.}
+  \label{fig:transition_zoom}
+\end{figure}
+
+\paragraph{The January 2026 event.} Scanning the full study period for
+sustained drops in connectivity (Section~\ref{sec:phases}) surfaces an
+18-day near-total collapse beginning \POneStart{}, entirely inside what a
+press-reported timeline would treat as one undifferentiated ``throttling''
+period, with no detectable change at all around the commonly reported
+late-December-2025 start date for that period, in any signal checked. This
+event is \textbf{observed} in this study's own measurement and passes the
+same control-population check as the main shutdown. It is not, however, a
+novel discovery: it was one of the most heavily publicly reported
+shutdowns of the period, and a separate, contemporaneous measurement study
+covering the same window, using an overlapping combination of routing data
+and outage-monitoring methods, already exists~\citep{aceto2026iran}. This
+paper's contribution regarding that specific event is an independent
+reproduction via measurement, with finer routing-level timing than prior
+public coverage offered, not a claim of discovery.
+
+\subsection{H2: topology of disconnection}
+\label{sec:h2}
+
+How often a network's set of upstream connections changes -- a proxy for
+reconfiguration activity in the network's underlying wiring -- spikes at
+the shutdown's onset (\transitionRatePTwo{} of networks changing upstreams
+in that period, several times the \transitionRatePZero{} baseline rate) and
+then drops to the lowest rate of the whole study during the sustained
+blackout (\transitionRatePThree{}), with a further small decline during
+recovery (\transitionRatePFour{}) (Figure~\ref{fig:h2_churn}). This
+spike-then-flat pattern is \textbf{observed}: reconfiguration activity is
+concentrated at the moment of the flip into blackout, not sustained
+throughout it, consistent with a one-time change rather than continued
+active rerouting during the months the blackout lasted.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.7\linewidth]{figures/h2_churn}
+  \caption{Rate of upstream-connection changes, by phase.}
+  \label{fig:h2_churn}
+\end{figure}
+
+This measurement does not, on its own, establish \emph{where in the
+network} this reconfiguration happened. The original question -- whether
+disconnection was carried out at a small number of international gateway
+networks, rather than distributed across many individual access providers
+-- would require breaking this measurement down by each network's role,
+which this analysis has not yet done at scale. A small, illustrative check
+on the two networks known to carry Iran's international gateway traffic
+found that one changed its upstream connections during the onset window and
+one did not, out of only four total measurements -- far too small a sample
+to support a conclusion either way, and reported here only so that this
+gap is explicit rather than quietly absorbed into the aggregate finding
+above. Resolving this specific question is left as an open limitation
+(Section~\ref{sec:discussion}), not folded into the aggregate result.
+
+\subsection{H3: selectivity of restoration}
+\label{sec:h3}
+
+Routing visibility, broken down by network category, stays at or above
+92\% for every category in every phase, including during the blackout
+itself (Figure~\ref{fig:h3_visibility_by_type}) -- \textbf{observed}, and
+consistent with the filtering-not-withdrawal reading from H1: routes
+mostly stay visible across every sector; sites simply stop responding when
+checked. The mobile category sits persistently about 4--5 percentage
+points below every other category, including during ordinary
+pre-shutdown months, not specifically during the blackout --
+\textbf{observed} as a structural, year-round difference rather than a
+blackout-specific effect.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.8\linewidth]{figures/h3_visibility_by_type}
+  \caption{Mean routing visibility by network category, monthly. All other
+  categories (shaded band) stay within a narrow range; mobile sits
+  persistently lower and the unclassified group is the most volatile.}
+  \label{fig:h3_visibility_by_type}
+\end{figure}
+
+The centerpiece result for restoration speed (Figure~\ref{fig:h3_restoration_speed})
+uses the fine-grained, minute-level event data described in
+Section~\ref{sec:methods} rather than the routine snapshot measurements
+(which are too coarse to resolve timing within the recovery window -- most
+address blocks appear ``restored'' at the very first snapshot taken after
+recovery began, an artifact of the measurement's resolution rather than
+evidence that recovery was instantaneous). By category, the typical delay
+between the start of the recovery phase and an individual network coming
+back online ranges from \restoreFastestMin{} minutes
+(\restoreFastestType{}) to \restoreSlowestMin{} minutes
+(\restoreSlowestType{}), with the state telecom operator at
+\restoreDelayMinStateTelecom{} minutes and a middle tier -- education,
+media, internet providers, and hosting -- clustered around 13--15 minutes.
+This ordering is \textbf{observed}.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.7\linewidth]{figures/h3_restoration_speed}
+  \caption{Typical delay before a network came back online after the start
+  of the recovery phase, by category (fine-grained, minute-level
+  measurement).}
+  \label{fig:h3_restoration_speed}
+\end{figure}
+
+This is a \textbf{mixed} result relative to the hypothesis that recovery
+was prioritized by sector, not a clean confirmation, and is reported as
+such. In its favor: government networks restore fastest and most
+consistently, and the unclassified, long-tail group of networks is both
+slowest to restore and least likely to restore at all
+(\neverRestoredUnclassified{} of unclassified address blocks never come
+back online by the end of the study period, versus \neverRestoredGovernment{}
+for government and \neverRestoredStateTelecom{} for the state telecom
+operator). Complicating a simple priority story: the mobile category has a
+fast typical delay but a long tail of slow stragglers. A related
+finding -- that certain categories of network are effectively protected
+from disruption -- is independently corroborated: the external study cited
+above separately reports that Iranian academic networks and the country's
+largest commercial content-delivery network retained substantially higher
+visibility than other Iranian networks throughout the
+shutdown~\citep{jahromi2026multiperspective}, consistent with (though not
+identical in scope to) this paper's own always-reachable group of hosting
+and content-delivery networks. Classification quality is externally
+validated (Cohen's $\kappa$ = \kappaValue{}, \kappaAgreePct{} agreement on
+a blind sample of \kappaN{} networks), but the single correction above is
+a reminder that category-level results are only as reliable as the
+underlying categorization, not a reason to distrust the overall pattern.
+
+\subsection{H4: comparison to prior shutdown/restoration events}
+\label{sec:h4}
+
+Five historical events -- the November 2019 shutdown, the June 2025
+shutdown, the January 2026 collapse (Section~\ref{sec:h1}), the February
+2026 onset, and the May 2026 recovery -- can be compared for how quickly
+they unfolded, using fine-grained routing data for each
+(Figure~\ref{fig:h4_comparison}). The primary comparison uses the range
+between the 5th and 95th percentile of when individual address blocks
+were first withdrawn from routing -- a measure that is not thrown off by
+a single unusually early or late outlier. By this measure, the February
+2026 onset was the fastest of the four collapse-type events, completing in
+\durationFebOnsetRangeHours{} hours, against \durationNovRangeHours{} hours
+for November 2019, \durationJunRangeHours{} hours for June 2025, and
+\durationJanEventRangeHours{} hours -- by far the widest of the four -- for
+the January 2026 collapse. That last figure is \textbf{observed} and fits
+the pattern already established in Section~\ref{sec:h1}: the January event
+was identified there as an 18-day near-total collapse rather than a sharp
+single-day cutover, and its withdrawal timing here is consistent with that
+same gradual, rolling character rather than a discrete event like the
+February onset.
+
+The typical (median) delay tells a different story, however, and this
+time it is the January 2026 collapse that comes out fastest
+(\durationJanEventMedianHours{} hours), narrowly ahead of June 2025
+(\durationJunMedianHours{} hours) and well ahead of November 2019
+(\durationNovMedianHours{} hours) and the February 2026 onset
+(\durationFebOnsetMedianHours{} hours, the slowest of the four by this
+measure). So the February 2026 onset is simultaneously the fastest event
+by overall range and the slowest by typical delay -- and the January 2026
+collapse is the reverse, slowest by range and fastest by typical delay.
+Both facts are \textbf{observed}; neither is smoothed into a single
+``which event was faster'' headline, since the two measures capture
+different things (how tightly clustered the bulk of withdrawals was,
+versus how long the median network waited) and rank the events
+differently depending on which one is asked.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.8\linewidth]{figures/h4_comparison}
+  \caption{Speed of each event: 5th-95th-percentile range vs.\ typical
+  (median) delay.}
+  \label{fig:h4_comparison}
+\end{figure}
+
+The May 2026 recovery window shows about as many withdrawals as the onset
+windows do (\nWithdrawnMayRestoration{} address blocks) despite being a
+\emph{recovery} event -- \textbf{observed}, and consistent with (though
+not independently confirmed beyond) the uneven, partial character of the
+recovery phase described in Section~\ref{sec:phases}: a mix of networks
+coming online and going back offline during partial recovery, rather than
+one clean, one-directional wave of restoration.
+
+This comparison has no equivalent to the control-population check used
+elsewhere in this paper: it compares Iran to itself across seven years of
+history rather than to other countries at a fixed point in time, so
+changes in the measurement infrastructure itself over that span cannot be
+ruled out the way they can for the within-study-period results above. This
+is reported as an open limitation, not an implicit claim that all five
+events are perfectly comparable.

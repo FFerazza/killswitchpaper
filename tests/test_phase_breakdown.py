@@ -114,3 +114,19 @@ def test_snapshot_trajectory_reports_raw_per_ts_values():
     assert result.loc[100, "dark_share"] == pytest.approx(0.0)
     assert result.loc[200, "dark_share"] == pytest.approx(0.5)
     assert result.loc[999, "n"] == 0  # ts with no rows at all
+
+
+def test_withdrawal_wave_timing_excludes_pre_boundary_buffer_noise():
+    events = pd.DataFrame([
+        # pre-boundary buffer-day noise: must not pollute the percentiles
+        {"ts": 0, "prefix": "1.0.0.0/24", "asn": 1, "peer_asn": 1, "event": "withdraw", "cc": "IR"},
+        {"ts": 5, "prefix": "2.0.0.0/24", "asn": 2, "peer_asn": 1, "event": "withdraw", "cc": "IR"},
+        # the real wave, all at/after phase_start=1000
+        {"ts": 1000, "prefix": "3.0.0.0/24", "asn": 3, "peer_asn": 1, "event": "withdraw", "cc": "IR"},
+        {"ts": 1010, "prefix": "4.0.0.0/24", "asn": 4, "peer_asn": 1, "event": "withdraw", "cc": "IR"},
+        {"ts": 1020, "prefix": "5.0.0.0/24", "asn": 5, "peer_asn": 1, "event": "withdraw", "cc": "IR"},
+        {"ts": 1030, "prefix": "6.0.0.0/24", "asn": 6, "peer_asn": 1, "event": "withdraw", "cc": "IR"},
+    ])
+    result = pb.withdrawal_wave_timing(events, phase_start=1000, flap_threshold_s=60)
+    assert result["n_prefixes"] == 4
+    assert result["t_min"] == 1000

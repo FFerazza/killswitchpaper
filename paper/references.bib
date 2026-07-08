@@ -1,0 +1,137 @@
+% Only verified real entries go here (CLAUDE.md: never generate a BibTeX
+% entry, DOI, title, author list, or venue from memory). A claim needing a
+% source not yet here gets \todo{CITE: <description>} in prose instead.
+
+% Verified 2026-07-07 via WebFetch against https://arxiv.org/abs/2603.28753
+% directly (title/authors/date/abstract all confirmed on the primary page,
+% not taken from a search snippet). Competing/overlapping coverage of the
+% Jan 2026 event (see Section 5.1) - cited to frame this paper's own
+% treatment of that event as independent reproduction, not discovery.
+@misc{aceto2026iran,
+  author       = {Aceto, Giuseppe and Persico, Valerio and Pescap\`{e}, Antonio},
+  title        = {Iran's January 2026 Internet Shutdown: Public Data, Censorship Methods, and Circumvention Techniques},
+  year         = {2026},
+  eprint       = {2603.28753},
+  archivePrefix= {arXiv},
+  note         = {Submitted March 30, 2026},
+}
+
+% Verified 2026-07-07 via WebFetch against
+% https://blog.apnic.net/2024/09/11/ioda-internet-outage-detection-and-analysis/
+% directly (title/author/date confirmed on the primary page). Source for the
+% literature-precedent value used in D-026 (visibility_announced_min = 0.5,
+% matching IODA's own "seen by >=50% of route-collector peers" definition).
+% No primary academic paper describing this specific threshold was located
+% and verified as of this citation; this blog post is the actual precedent
+% used.
+@misc{alcock2024ioda,
+  author = {Alcock, Shane},
+  title  = {{IODA}: Internet Outage Detection and Analysis},
+  year   = {2024},
+  month  = sep,
+  note   = {APNIC Blog, published 11 September 2024},
+  url    = {https://blog.apnic.net/2024/09/11/ioda-internet-outage-detection-and-analysis/},
+}
+
+% Verified 2026-07-07: title/authors/abstract read directly from the paper's
+% own PDF (fetched via par.nsf.gov, first page read with the PDF reader,
+% not inferred from a search snippet); year/IEEE publisher corroborated by
+% the CAIDA catalog record identifier (2021_mangino_ieee_9498743) and IEEE
+% Xplore document 9498743, though the exact conference name could not be
+% independently confirmed (IEEE Xplore's page did not return readable
+% content) - omitted rather than guessed. Foundational measurement study of
+% the November 2019 Iran shutdown, this paper's H4 comparison point.
+@inproceedings{mangino2021multidimensional,
+  author    = {Mangino, Antonio and Bou-Harb, Elias},
+  title     = {A Multidimensional Network Forensics Investigation of a State-Sanctioned Internet Outage},
+  year      = {2021},
+  publisher = {IEEE},
+  note      = {IEEE Xplore document 9498743},
+}
+
+% Verified 2026-07-07 via WebFetch against https://arxiv.org/abs/2605.00187
+% directly. Independent, methodologically distinct (Censys + active TCP
+% probing + BGP, vs. this paper's BGP + IODA active-probing + network-
+% telescope) corroboration of the filtering/null-routing mechanism (H1) and
+% of structural exemptions for CDN/academic networks (H3's always-reachable
+% cohort) - cited in the results discussion, not just related work.
+% Verified 2026-07-07: title confirmed by reading the report's own cover
+% page directly (PDF fetched from accessnow.org, read with the PDF reader,
+% not inferred from a search snippet) - "Rising Repression Meets Global
+% Resistance: Internet shutdowns in 2025", #KeepItOn. Specific shutdown-
+% count statistics reported by secondary sources (multiple independent
+% outlets agree on the same figures) were NOT independently confirmed
+% against the primary report's own text and are therefore not cited as
+% numbers in this paper's prose - only the report's existence/theme is
+% used for general framing.
+@techreport{accessnow2026keepiton,
+  author       = {{Access Now and the \#KeepItOn Coalition}},
+  title        = {Rising Repression Meets Global Resistance: Internet Shutdowns in 2025},
+  year         = {2026},
+  institution  = {Access Now},
+  note         = {\#KeepItOn Annual Report},
+}
+
+@misc{jahromi2026multiperspective,
+  author       = {Sadeghi Jahromi, Ali and Jaskolka, Jason},
+  title        = {A Multi-Perspective Study of the Internet Shutdown in Iran},
+  year         = {2026},
+  eprint       = {2605.00187},
+  archivePrefix= {arXiv},
+  note         = {Submitted April 30, 2026},
+}
+
+% Verified 2026-07-08: title/authors/venue read directly from the paper's
+% own first page (fetched via caida.org, publisher-hosted PDF). Page header
+% states "This is the author's version of an article that has been
+% published in this journal" with DOI 10.1109/TNET.2013.2291244, and the
+% page footer states "Copyright (c) 2013 IEEE" - year taken directly from
+% that stated copyright date, exact journal name/volume/issue not
+% independently confirmed on page 1 and therefore omitted rather than
+% guessed (venue is identifiable from the DOI prefix as IEEE/ACM
+% Transactions on Networking). Foundational study combining BGP
+% control-plane data with network-telescope (darknet) traffic to
+% characterize the 2011 Egypt/Libya shutdowns - the origin of the
+% multi-source BGP + network-telescope methodology this paper's own
+% measurement approach builds on (Section~\ref{sec:methods}).
+@article{dainotti2013outages,
+  author  = {Dainotti, Alberto and Squarcella, Claudio and Aben, Emile and Claffy, Kimberly C. and Chiesa, Marco and Russo, Michele and Pescap{\`e}, Antonio},
+  title   = {Analysis of Country-wide Internet Outages Caused by Censorship},
+  year    = {2013},
+  doi     = {10.1109/TNET.2013.2291244},
+}
+
+% Verified 2026-07-08: title/full author list/venue/year read directly from
+% the paper's own ACM Reference Format block on its first page (fetched
+% from cseweb.ucsd.edu, publisher-hosted PDF). ACM SIGCOMM '23, DOI
+% 10.1145/3603269.3604883. First systematic, cross-country (155 countries,
+% four years: 219 government-ordered shutdowns + 714 spontaneous outages)
+% characterization of shutdowns vs. spontaneous outages, built on the same
+% IODA dataset this paper uses~\citep{alcock2024ioda} - the general
+% shutdown-taxonomy literature this paper's single-country study sits
+% inside.
+@inproceedings{bischof2023destination,
+  author    = {Bischof, Zachary S. and Pitcher, Kennedy and Carisimo, Esteban and Meng, Amanda and Nunes, Rafael Bezerra and Padmanabhan, Ramakrishna and Roberts, Margaret E. and Snoeren, Alex C. and Dainotti, Alberto},
+  title     = {Destination Unreachable: Characterizing Internet Outages and Shutdowns},
+  year      = {2023},
+  booktitle = {Proceedings of the ACM SIGCOMM 2023 Conference},
+  publisher = {ACM},
+  doi       = {10.1145/3603269.3604883},
+}
+
+% Verified 2026-07-08: title/authors/journal/dates confirmed directly from
+% the arXiv abstract page (arxiv.org/abs/2502.14945): submitted 20 Feb
+% 2025 (v1), revised 30 Oct 2025 (v2), journal-ref given as Computers &
+% Security (Elsevier). General internet-censorship measurement
+% methodology/taxonomy survey, not shutdown-specific - used to situate this
+% paper's narrower measurement approach within the wider censorship-
+% measurement field.
+@article{wendzel2025survey,
+  author       = {Wendzel, Steffen and Volpert, Simon and Zillien, Sebastian and Lenz, Julia and R{\"u}nz, Philip and Caviglione, Luca},
+  title        = {A Survey of Internet Censorship and its Measurement: Methodology, Trends, and Challenges},
+  year         = {2025},
+  journal      = {Computers \& Security},
+  publisher    = {Elsevier},
+  eprint       = {2502.14945},
+  archivePrefix= {arXiv},
+}

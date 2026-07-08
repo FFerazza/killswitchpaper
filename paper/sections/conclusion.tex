@@ -1,0 +1,30 @@
+Joined BGP and active-probing/network-telescope measurement, applied to
+Iran's 2025--26 shutdown at 8-hour resolution across the full period and at
+BGP-update resolution across five historical event windows, supports a
+filtering-dominant mechanism (H1): routes stayed announced while active
+reachability collapsed, a pattern absent from a matched control population
+and corroborated by an independently authored, methodologically distinct
+study of the same event. Restoration selectivity (H3) is real but coarser
+than a clean per-sector ranking -- government and core state infrastructure
+recover fastest and most completely, the unclassified long tail slowest and
+least completely, with genuine complications (mobile's fast typical delay
+but long tail of stragglers) stated outright, not smoothed away. H2's specific
+topological claim -- gateway-level versus distributed disconnection -- and
+H4's lack of a cross-window control check are identified as open
+limitations, not silently folded into the headline results.
+
+Every number in this paper can be traced back to a specific, documented
+analytical choice, and every threshold and robustness check was fixed
+before its effect on a result was known. That discipline caught two real
+mistakes during this study, and both are reported here rather than quietly
+corrected and forgotten: an early version of the address-space calculation
+double-counted overlapping BGP announcements, and the threshold separating
+``reachable'' from ``dark'' was left at a placeholder value for longer than it
+should have been before being properly calibrated. Neither changed this
+paper's main conclusions, but both are the kind of error that a less
+disciplined analysis could easily have missed.
+
+Extending H2's topological decomposition to test the
+gateway-versus-access-network claim directly, and building an H4-side
+control-population check comparable to H1/H3's, are the most direct next
+steps this study's own limitations point to.

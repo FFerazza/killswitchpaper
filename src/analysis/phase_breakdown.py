@@ -10,6 +10,7 @@ ad hoc, not committed - this preserves that logic for reuse, per CLAUDE.md's
 
 import pandas as pd
 
+from src.analysis.flap_gaps import drop_flap_withdrawals
 from src.common.config import Window
 
 
@@ -171,3 +172,32 @@ def snapshot_trajectory(bgp_vs_ioda: pd.DataFrame, ts_list: list[int]) -> pd.Dat
             "n": len(sub),
         })
     return pd.DataFrame(rows)
+
+
+def withdrawal_wave_timing(
+    events: pd.DataFrame, phase_start: int, flap_threshold_s: int
+) -> dict:
+    """Percentiles of per-prefix first-withdrawal time, restricted to
+    withdrawals AT OR AFTER an already-decided phase boundary (e.g. P2's
+    start).
+
+    Event-window pulls intentionally include a quiet buffer day before the
+    boundary they target (margin for the pull, not part of the phase), so
+    naive percentiles over the WHOLE event window are contaminated by
+    ordinary pre-onset background churn - the unscoped p5 for feb2026_onset
+    lands 7+ hours before the boundary, clearly not "the wave." Restricting
+    to ts >= phase_start uses only the boundary decision already made
+    (D-025), not a new threshold, and recovers a clean, tight wave onset.
+    """
+    if "cc" in events.columns:
+        events = events[events["cc"] == "IR"]
+    events = drop_flap_withdrawals(events, flap_threshold_s)
+    withdrawals = events[(events["event"] == "withdraw") & (events["ts"] >= phase_start)]
+    first_w = withdrawals.groupby("prefix")["ts"].min()
+    return {
+        "n_prefixes": int(first_w.size),
+        "t_min": int(first_w.min()),
+        "t_p5": int(first_w.quantile(0.05)),
+        "t_p50": int(first_w.quantile(0.50)),
+        "t_p95": int(first_w.quantile(0.95)),
+    }

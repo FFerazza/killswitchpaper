@@ -1,0 +1,27 @@
+\begin{abstract}
+We reconstruct the technical execution of Iran's 2025--26 nationwide
+internet shutdown by jointly measuring BGP routing visibility (RouteViews
+and RIS route collectors, 8-hour resolution across a 14-month study period
+plus five BGP-update-resolution event windows spanning 2019--2026) and
+active-probing/network-telescope outage signals (IODA), aligned per
+Autonomous System. Every analytical threshold, exclusion rule, and phase
+boundary used is data-derived and recorded in an append-only decision log
+before its effect on any result is known, including two corrections
+surfaced by that discipline during this study: a double-counting bug in
+address-space accounting for overlapping BGP announcements, and a dark-
+classification threshold that had been left as an unfinalized placeholder
+past the point its own governing rule required closing it. We find the
+blackout was filtering-dominant: routes remained visible in BGP while
+reachability collapsed, not a control-plane withdrawal -- a pattern absent
+from a matched control population of three regional neighbors and
+independently corroborated by a contemporaneous study using an unrelated
+measurement stack. Restoration during the subsequent partial, tiered
+recovery phase was selective by sector, though coarser than a clean
+per-type ranking: government and core state infrastructure recovered
+fastest and most completely, an unclassified long tail slowest and least
+completely, with genuine complications reported openly, not smoothed over.
+We report disconfirming evidence and open limitations explicitly, including
+an untested topological sub-claim and one comparison lacking a
+control-population check, and tier every empirical claim by the strength of
+evidence it rests on.
+\end{abstract}

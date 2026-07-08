@@ -13,6 +13,17 @@ CONFIG_DIR = REPO_ROOT / "config"
 DATA_DIR = REPO_ROOT / "data"
 OUTPUTS_DIR = REPO_ROOT / "outputs"
 
+# Reader-facing names for the P0-P4 phase labels (presentation only - not an
+# analytical parameter, doesn't affect any threshold or DECISIONS.md entry).
+# Single source of truth so prose, tables, and figure axes never disagree.
+PHASE_NAMES = {
+    "P0": "Baseline",
+    "P1": "Prelude",
+    "P2": "Onset",
+    "P3": "Plateau",
+    "P4": "Restoration",
+}
+
 
 @dataclass(frozen=True)
 class Window:

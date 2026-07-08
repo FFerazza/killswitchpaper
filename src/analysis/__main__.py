@@ -14,14 +14,14 @@ import pandas as pd
 
 from src.common.config import CONFIG_DIR, DATA_DIR, OUTPUTS_DIR, Config
 from src.common.log import get_logger
-from src.analysis import joins, series_comparison
+from src.analysis import joins, phase_breakdown, results_tex, series_comparison
 
 log = get_logger("analysis")
 
 TABLES = ["visibility_by_type", "bgp_vs_ioda", "upstream_transitions", "event_speed",
           "restoration_events", "restoration_by_type",
           "fine_restoration_order", "restoration_order_by_type",
-          "visibility_bimodality"]
+          "visibility_bimodality", "phase_breakdown", "results_tex"]
 
 
 def _load_visibility(min_fullfeed_peers: int, cc: str = "IR") -> pd.DataFrame:
@@ -146,6 +146,69 @@ def main() -> None:
             window_start=cfg.phase_window("P4").start,
             out_path=OUTPUTS_DIR / "restoration_order_by_type.parquet",
         )
+    if "phase_breakdown" in tables:
+        # Headline P0-P4 H1/H2/H3 numbers (previously only ever computed
+        # ad hoc and reported in prose/memory, never saved as a committed,
+        # reproducible artifact) + D-025's transition-window robustness
+        # exhibits. All read from the just-built Stage 5 tables on disk.
+        phases = {p: cfg.phase_window(p) for p in ["P0", "P1", "P2", "P3", "P4"]}
+        bvi_path = OUTPUTS_DIR / "bgp_vs_ioda.parquet"
+        ut_path = OUTPUTS_DIR / "upstream_transitions.parquet"
+        vbt_path = OUTPUTS_DIR / "visibility_by_type.parquet"
+        for p in (bvi_path, ut_path, vbt_path):
+            if not p.exists():
+                raise SystemExit(f"{p} not found - run the full pipeline first")
+        bvi = pd.read_parquet(bvi_path)
+        ut = pd.read_parquet(ut_path)
+        vbt = pd.read_parquet(vbt_path)
+
+        joins.write_parquet(
+            phase_breakdown.dark_and_withdrawn_share(bvi, phases).reset_index(),
+            OUTPUTS_DIR / "phase_breakdown_h1.parquet",
+        )
+        joins.write_parquet(
+            phase_breakdown.transition_rate_by_phase(ut, phases).reset_index(),
+            OUTPUTS_DIR / "phase_breakdown_h2.parquet",
+        )
+        joins.write_parquet(
+            phase_breakdown.visibility_by_type_by_phase(vbt, phases).reset_index(),
+            OUTPUTS_DIR / "phase_breakdown_h3_visibility.parquet",
+        )
+
+        # D-025 robustness: the raw snapshot trajectory across the measured
+        # Feb 28 P1/P2 transition (the four 8h-grid snapshots straddling it).
+        p2_start = cfg.phase_window("P2").start
+        grid_step = cfg.rib_interval_hours * 3600
+        grid_midnight = p2_start - (p2_start % grid_step)
+        trajectory_ts = [grid_midnight + k * grid_step for k in range(4)]
+        traj = phase_breakdown.snapshot_trajectory(bvi, trajectory_ts)
+        traj.to_csv(OUTPUTS_DIR / "p1_p2_transition_snapshot_trajectory.csv", index=False)
+        log.info("%d rows -> %s", len(traj),
+                  OUTPUTS_DIR / "p1_p2_transition_snapshot_trajectory.csv")
+
+        # D-025's own pre-committed +/-24h P1/P2 boundary sweep, plus a finer
+        # intermediate grid showing where the metric mechanically breaks.
+        shifts = [-86400, -43200, -14400, -7200, -3600, -1800, 0,
+                  1800, 3600, 7200, 14400, 43200, 86400]
+        sweep = phase_breakdown.boundary_sensitivity_sweep(bvi, ut, phases, "P1", shifts)
+        sweep.to_csv(OUTPUTS_DIR / "p1_p2_boundary_sensitivity.csv", index=False)
+        log.info("%d rows -> %s", len(sweep), OUTPUTS_DIR / "p1_p2_boundary_sensitivity.csv")
+
+        # H1: does the probing collapse (P2 boundary, timed above) precede
+        # the bulk BGP withdrawal wave? Percentiles restricted to ts >= P2
+        # start avoid the pull window's pre-boundary buffer-day noise.
+        feb_events_path = DATA_DIR / "bgp" / "events" / "feb2026_onset.parquet"
+        if feb_events_path.exists():
+            feb_events = pd.read_parquet(feb_events_path)
+            wave = phase_breakdown.withdrawal_wave_timing(
+                feb_events, phases["P2"].start, int(cfg.analysis["flap_threshold_s"]),
+            )
+            pd.DataFrame([wave]).to_csv(
+                OUTPUTS_DIR / "feb2026_withdrawal_wave.csv", index=False
+            )
+            log.info("withdrawal wave timing -> %s",
+                      OUTPUTS_DIR / "feb2026_withdrawal_wave.csv")
+
     if "visibility_bimodality" in tables:
         # D-012 two-series robustness exhibit (paper-two-series-justification
         # argument 3): demonstrates bimodality/threshold-insensitivity on the
@@ -161,6 +224,9 @@ def main() -> None:
         joins.write_parquet(comparison, OUTPUTS_DIR / "visibility_bimodality_comparison.parquet")
         summary = series_comparison.bimodality_summary(comparison)
         joins.write_parquet(summary, OUTPUTS_DIR / "visibility_bimodality_summary.parquet")
+
+    if "results_tex" in tables:
+        results_tex.write_results_tex(cfg, results_tex.PAPER_DIR / "results.tex")
 
 
 if __name__ == "__main__":

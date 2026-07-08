@@ -284,6 +284,8 @@ def event_speed(
             "n_prefixes_withdrawn": int(first_w.size),
             "t_first": int(first_w.min()),
             "t_last": int(first_w.max()),
+            "t_p5": int(p5),
+            "t_p95": int(p95),
             "duration_s": int(first_w.max() - first_w.min()),
             "duration_p5_p95_s": int(p95 - p5),
             "duration_p50_s": int(first_w.quantile(0.50) - first_w.min()),
